@@ -1,0 +1,10 @@
+iisnode.yml
+logs/*
+node_modules/*
+typings/*
+iisnode/*
+npm-debug.log
+.vscode/*
+
+!.gitignore
+!.gitkeep
