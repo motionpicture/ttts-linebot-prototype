@@ -19,7 +19,7 @@ router.get("/environmentVariables", (req, res) => {
 });
 
 router.post("/webhook", (req, res) => {
-    console.log("body:", req.body);
+    console.log("body:", JSON.stringify(req.body));
     res.send('successfully hook events.');
 });
 

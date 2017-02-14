@@ -1,0 +1,3 @@
+node_env: dev
+loggingEnabled: true
+devErrorsEnabled: true

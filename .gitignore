@@ -1,4 +1,3 @@
-iisnode.yml
 logs/*
 node_modules/*
 typings/*
