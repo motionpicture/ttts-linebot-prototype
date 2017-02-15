@@ -120,7 +120,7 @@ router.all('/linepay/confirm', async (req, res) => {
 
     try {
         const confirmLinePayResponse = await request.post({
-            url: 'https://sandbox-api-pay.line.me/v2/payments/${req.query.transactionId}/confirm',
+            url: 'https://sandbox-api-pay.line.me/v2/payments/' + req.query.transactionId + '/confirm',
             headers: {
                 'X-LINE-ChannelId': process.env.LINE_PAY_CHANNEL_ID,
                 'X-LINE-ChannelSecret': process.env.LINE_PAY_CHANNEL_SECRET

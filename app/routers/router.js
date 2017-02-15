@@ -101,7 +101,7 @@ router.all('/linepay/confirm', (req, res) => __awaiter(this, void 0, void 0, fun
     console.log(req.query);
     try {
         const confirmLinePayResponse = yield request.post({
-            url: 'https://sandbox-api-pay.line.me/v2/payments/${req.query.transactionId}/confirm',
+            url: 'https://sandbox-api-pay.line.me/v2/payments/' + req.query.transactionId + '/confirm',
             headers: {
                 'X-LINE-ChannelId': process.env.LINE_PAY_CHANNEL_ID,
                 'X-LINE-ChannelSecret': process.env.LINE_PAY_CHANNEL_SECRET
