@@ -33,7 +33,9 @@
   "private": true,
   "repository": {},
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "mocha --no-timeouts --recursive",
+    "tslint": "tslint -c tslint.json lib/**/*.ts"
   },
   "version": "1.0.0"
 }
