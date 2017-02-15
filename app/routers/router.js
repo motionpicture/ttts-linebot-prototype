@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const express = require("express");
+const fs = require("fs-extra");
 const request = require("request-promise-native");
 const router = express.Router();
 router.get('/environmentVariables', (req, res) => {
@@ -207,7 +208,7 @@ router.all('/linepay/confirm', (req, res) => __awaiter(this, void 0, void 0, fun
                     },
                     {
                         type: 'imagemap',
-                        baseUrl: 'https://devssktslinebot.azurewebsites.net/images/qrcode.png',
+                        baseUrl: 'https://devssktslinebot.azurewebsites.net/linepay/qrcode',
                         altText: 'qrcode',
                         baseSize: {
                             height: 1040,
@@ -235,5 +236,13 @@ router.all('/linepay/confirm', (req, res) => __awaiter(this, void 0, void 0, fun
     }
     res.send(reply);
 }));
+router.get('/linepay/qrcode', (_req, res, next) => {
+    fs.readFile(__dirname + '/../../public/images/qrcode.png', (err, data) => {
+        if (err)
+            return next(err);
+        res.contentType('image/png');
+        res.send(data);
+    });
+});
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = router;

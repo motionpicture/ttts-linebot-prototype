@@ -1,5 +1,6 @@
 // tslint:disable:missing-jsdoc no-console
 import * as express from 'express';
+import * as fs from 'fs-extra';
 import * as request from 'request-promise-native';
 const router = express.Router();
 
@@ -249,7 +250,7 @@ router.all('/linepay/confirm', async (req, res) => {
                     },
                     {
                         type: 'imagemap',
-                        baseUrl: 'https://devssktslinebot.azurewebsites.net/images/qrcode.png',
+                        baseUrl: 'https://devssktslinebot.azurewebsites.net/linepay/qrcode',
                         altText: 'qrcode',
                         baseSize: {
                             height: 1040,
@@ -276,6 +277,16 @@ router.all('/linepay/confirm', async (req, res) => {
     }
 
     res.send(reply);
+});
+
+
+// tslint:disable-next-line:variable-name
+router.get('/linepay/qrcode', (_req, res, next) => {
+    fs.readFile(__dirname + '/../../public/images/qrcode.png', (err, data) => {
+        if (err) return next(err);
+        res.contentType('image/png');
+        res.send(data);
+    });
 });
 
 export default router;
