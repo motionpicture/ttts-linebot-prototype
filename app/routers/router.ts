@@ -19,6 +19,120 @@ router.get('/environmentVariables', (req, res) => {
     });
 });
 
+/**
+ * メッセージ送信
+ *
+ * @param {string} MID
+ * @param {string} text
+ */
+async function pushMessage(MID: string, text: string) {
+    // push message
+    await request.post({
+        simple: false,
+        url: 'https://api.line.me/v2/bot/message/push',
+        auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+        json: true,
+        body: {
+            to: MID,
+            messages: [
+                {
+                    type: 'text',
+                    text: text
+                }
+            ]
+        }
+    });
+}
+
+/**
+ * パフォーマンスリスト送信
+ *
+ * @param {string} MID
+ * @param {string} day
+ */
+async function pushPerformances(MID: string, day: string) {
+    // パフォーマンス検索
+    const searchPerformancesResponse = await request.get({
+        url: 'https://devtttsapiprototype.azurewebsites.net/ja/performance/search',
+        // json: true,
+        qs: {
+            day: day
+        }
+    });
+
+    const MAX_COLUMNS = 3;
+    const performances: any[] =
+        searchPerformancesResponse.results.slice(0, Math.min(MAX_COLUMNS - 1, searchPerformancesResponse.results.length - 1));
+
+    const columns = performances.map(async (performance) => {
+        // LINE Pay開始
+        const startLinePayResponse = await request.post({
+            url: 'https://sandbox-api-pay.line.me/v2/payments/request',
+            headers: {
+                'X-LINE-ChannelId': process.env.LINE_PAY_CHANNEL_ID,
+                'X-LINE-ChannelSecret': process.env.LINE_PAY_CHANNEL_SECRET
+            },
+            json: {
+                productName: performance.film_name,
+                amount: 1500,
+                currency: 'JPY',
+                // mid: MID, // 含めるとpaymentUrl先でエラーになるかも？
+                confirmUrl: 'https://devssktslinebot.azurewebsites.net/linepay/confirm?mid=' + MID,
+                // confirmUrlType: 'CLIENT',
+                confirmUrlType: 'SERVER',
+                cancelUrl: '',
+                orderId: 'LINEPayOrder_' + Date.now(),
+                payType: 'NORMAL', // 一般決済
+                langCd: 'ja', // 決済待ち画面(paymentUrl)言語コード。6 種の言語に対応。
+                capture: false // 売上処理
+            }
+        });
+
+        console.log(startLinePayResponse.info.paymentUrl);
+        if (startLinePayResponse.returnCode !== '0000') return false;
+
+        return {
+            thumbnailImageUrl: performance.film_image,
+            title: performance.film_name,
+            text: performance.theater_name,
+            actions: [
+                {
+                    type: 'uri',
+                    label: '座席予約',
+                    uri: startLinePayResponse.info.paymentUrl.web
+                },
+                {
+                    type: 'uri',
+                    label: '作品詳細',
+                    uri: 'https://www.google.co.jp/#q=' + performance.film_name
+                }
+            ]
+        };
+    });
+    console.log(columns);
+
+    // push message
+    await request.post({
+        simple: false,
+        url: 'https://api.line.me/v2/bot/message/push',
+        auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+        json: true,
+        body: {
+            to: MID,
+            messages: [
+                {
+                    type: 'template',
+                    altText: 'パフォーマンスリスト',
+                    template: {
+                        type: 'carousel',
+                        columns: columns
+                    }
+                }
+            ]
+        }
+    });
+}
+
 router.all('/webhook', async (req, res) => {
     console.log('body:', JSON.stringify(req.body));
 
@@ -27,85 +141,59 @@ router.all('/webhook', async (req, res) => {
     try {
         const event: any = (req.body.events) ? req.body.events[0] : undefined;
 
-        if (event && event.type === 'message') {
-            const message = event.message.text;
+        if (event) {
             const MID = event.source.userId;
 
-            switch (message) {
-                case '予約':
-                    // LINE Pay開始
-                    const response = await request.post({
-                        url: 'https://sandbox-api-pay.line.me/v2/payments/request',
-                        headers: {
-                            'X-LINE-ChannelId': process.env.LINE_PAY_CHANNEL_ID,
-                            'X-LINE-ChannelSecret': process.env.LINE_PAY_CHANNEL_SECRET
-                        },
-                        // json: true,
-                        json: {
-                            productName: '商品名',
-                            amount: 1,
-                            currency: 'JPY',
-                            // mid: MID, // 含めるとpaymentUrl先でエラーになるかも？
-                            confirmUrl: 'https://' + (<any>req.headers).host + '/linepay/confirm?mid=' + MID,
-                            // confirmUrlType: 'CLIENT',
-                            confirmUrlType: 'SERVER',
-                            cancelUrl: '',
-                            orderId: 'LINEPayOrder_' + Date.now(),
-                            payType: 'NORMAL', // 一般決済
-                            langCd: 'ja', // 決済待ち画面(paymentUrl)言語コード。6 種の言語に対応。
-                            capture: false // 売上処理
-                        }
-                    });
+            switch (event.type) {
+                case 'message':
+                    const message = event.message.text;
 
-                    console.log(response.info.paymentUrl);
-                    if (response.returnCode === '0000') {
-                        // reply = response.info.paymentUrl.app;
-                        reply = response.info.paymentUrl.web;
+                    switch (message) {
+                        case '予約':
+                            pushMessage(MID, 'いつ？');
+                            break;
+
+                        // 日付への返答
+                        case /[0-9]{6}/:
+                            pushPerformances(MID, message);
+                            break;
+
+                        default:
+                            // cognitiveで次のテキスト候補検索
+                            const generateNextWordsResult = await request.post({
+                                simple: false,
+                                url: 'https://westus.api.cognitive.microsoft.com/text/weblm/v1.0/generateNextWords',
+                                headers: {
+                                    'Ocp-Apim-Subscription-Key': 'ecdeb8bb4a5f481ab42e2ff2b765c962'
+                                },
+                                json: true,
+                                qs: {
+                                    model: 'query',
+                                    words: message
+                                },
+                                useQuerystring: true
+                            });
+
+                            console.log(generateNextWordsResult);
+                            const candidates: any[] = generateNextWordsResult.candidates;
+                            if (candidates.length > 0) {
+                                reply = candidates[0].word;
+                            }
+
+                            pushMessage(MID, reply);
+                            break;
                     }
+
+                    break;
+
+                case 'postback':
+                    pushMessage(MID, event.postback.data);
 
                     break;
 
                 default:
-                    // cognitiveで次のテキスト候補検索
-                    const generateNextWordsResult = await request.post({
-                        simple: false,
-                        url: 'https://westus.api.cognitive.microsoft.com/text/weblm/v1.0/generateNextWords',
-                        headers: {
-                            'Ocp-Apim-Subscription-Key': 'ecdeb8bb4a5f481ab42e2ff2b765c962'
-                        },
-                        json: true,
-                        qs: {
-                            model: 'query',
-                            words: message
-                        },
-                        useQuerystring: true
-                    });
-
-                    console.log(generateNextWordsResult);
-                    const candidates: any[] = generateNextWordsResult.candidates;
-                    if (candidates.length > 0) {
-                        reply = candidates[0].word;
-                    }
-
                     break;
             }
-
-            // push message
-            await request.post({
-                simple: false,
-                url: 'https://api.line.me/v2/bot/message/push',
-                auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
-                json: true,
-                body: {
-                    to: MID,
-                    messages: [
-                        {
-                            type: 'text',
-                            text: reply
-                        }
-                    ]
-                }
-            });
         }
     } catch (error) {
         console.error(error);
