@@ -45,7 +45,7 @@ router.all('/webhook', async (req, res) => {
                             productName: '商品名',
                             amount: 1,
                             currency: 'JPY',
-                            mid: MID,
+                            // mid: MID, // 含めるとpaymentUrl先でエラーになるかも？
                             confirmUrl: 'https://' + (<any>req.headers).host + '/linepay/confirm?mid=' + MID,
                             // confirmUrlType: 'CLIENT',
                             confirmUrlType: 'SERVER',
@@ -116,6 +116,7 @@ router.all('/webhook', async (req, res) => {
 
 router.all('/linepay/confirm', async (req, res) => {
     let reply = '';
+    console.log(req.query);
 
     try {
         const confirmLinePayResponse = await request.post({

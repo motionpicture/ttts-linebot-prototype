@@ -39,7 +39,6 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
                             productName: '商品名',
                             amount: 1,
                             currency: 'JPY',
-                            mid: MID,
                             confirmUrl: 'https://' + req.headers.host + '/linepay/confirm?mid=' + MID,
                             confirmUrlType: 'SERVER',
                             cancelUrl: '',
@@ -99,6 +98,7 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
 }));
 router.all('/linepay/confirm', (req, res) => __awaiter(this, void 0, void 0, function* () {
     let reply = '';
+    console.log(req.query);
     try {
         const confirmLinePayResponse = yield request.post({
             url: 'https://sandbox-api-pay.line.me/v2/payments/${req.query.transactionId}/confirm',
