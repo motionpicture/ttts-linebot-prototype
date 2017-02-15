@@ -39,7 +39,8 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
                             productName: '商品名',
                             amount: 1,
                             currency: 'JPY',
-                            confirmUrl: 'https://' + req.headers.host + '/linepay/confirm',
+                            mid: MID,
+                            confirmUrl: 'https://' + req.headers.host + '/linepay/confirm?mid=' + MID,
                             confirmUrlType: 'SERVER',
                             cancelUrl: '',
                             orderId: 'LINEPayOrder_' + Date.now(),
@@ -50,7 +51,7 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
                     });
                     console.log(response.info.paymentUrl);
                     if (response.returnCode === '0000') {
-                        reply = response.info.paymentUrl.app;
+                        reply = response.info.paymentUrl.web;
                     }
                     break;
                 default:
@@ -90,6 +91,47 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
                 }
             });
         }
+    }
+    catch (error) {
+        console.error(error);
+    }
+    res.send(reply);
+}));
+router.all('/linepay/confirm', (req, res) => __awaiter(this, void 0, void 0, function* () {
+    let reply = '';
+    try {
+        const confirmLinePayResponse = yield request.post({
+            url: 'https://sandbox-api-pay.line.me/v2/payments/${req.query.transactionId}/confirm',
+            headers: {
+                'X-LINE-ChannelId': process.env.LINE_PAY_CHANNEL_ID,
+                'X-LINE-ChannelSecret': process.env.LINE_PAY_CHANNEL_SECRET
+            },
+            json: {
+                amount: 1,
+                currency: 'JPY'
+            }
+        });
+        if (confirmLinePayResponse.returnCode === '0000') {
+            reply = '決済完了！' + JSON.stringify(req.query);
+        }
+        else {
+            reply = '決済を完了できませんでした' + confirmLinePayResponse.returnMessage;
+        }
+        yield request.post({
+            simple: false,
+            url: 'https://api.line.me/v2/bot/message/push',
+            auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+            json: true,
+            body: {
+                to: req.query.mid,
+                messages: [
+                    {
+                        type: 'text',
+                        text: reply
+                    }
+                ]
+            }
+        });
     }
     catch (error) {
         console.error(error);
