@@ -207,7 +207,7 @@ router.all('/linepay/confirm', (req, res) => __awaiter(this, void 0, void 0, fun
                     },
                     {
                         type: 'imagemap',
-                        baseUrl: 'https://devssktslinebot.azurewebsites.net/images/qrcode',
+                        baseUrl: 'https://devssktslinebot.azurewebsites.net/images/qrcode.png',
                         altText: 'qrcode',
                         baseSize: {
                             height: 1040,

@@ -249,7 +249,7 @@ router.all('/linepay/confirm', async (req, res) => {
                     },
                     {
                         type: 'imagemap',
-                        baseUrl: 'https://devssktslinebot.azurewebsites.net/images/qrcode',
+                        baseUrl: 'https://devssktslinebot.azurewebsites.net/images/qrcode.png',
                         altText: 'qrcode',
                         baseSize: {
                             height: 1040,
