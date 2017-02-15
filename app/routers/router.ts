@@ -54,7 +54,7 @@ async function pushPerformances(MID: string, day: string) {
     // パフォーマンス検索
     const searchPerformancesResponse = await request.get({
         url: 'https://devtttsapiprototype.azurewebsites.net/ja/performance/search',
-        // json: true,
+        json: true,
         qs: {
             day: day
         }
@@ -62,9 +62,17 @@ async function pushPerformances(MID: string, day: string) {
 
     const MAX_COLUMNS = 3;
     const performances: any[] =
-        searchPerformancesResponse.results.slice(0, Math.min(MAX_COLUMNS - 1, searchPerformancesResponse.results.length - 1));
+        searchPerformancesResponse.results.slice(0, Math.min(MAX_COLUMNS, searchPerformancesResponse.results.length));
 
-    const columns = performances.map(async (performance) => {
+    if (performances.length === 0) {
+        await pushMessage(MID, 'なんもやってない');
+        return;
+    }
+
+    const columns: any[] = [];
+    const MAX_TITLE_LENGTH = 30;
+    const promises = performances.map(async (performance) => {
+        const amount = 1500;
         // LINE Pay開始
         const startLinePayResponse = await request.post({
             url: 'https://sandbox-api-pay.line.me/v2/payments/request',
@@ -74,10 +82,11 @@ async function pushPerformances(MID: string, day: string) {
             },
             json: {
                 productName: performance.film_name,
-                amount: 1500,
+                productImageUrl: performance.film_image,
+                amount: amount,
                 currency: 'JPY',
                 // mid: MID, // 含めるとpaymentUrl先でエラーになるかも？
-                confirmUrl: 'https://devssktslinebot.azurewebsites.net/linepay/confirm?mid=' + MID,
+                confirmUrl: 'https://devssktslinebot.azurewebsites.net/linepay/confirm?mid=' + MID + '&amount=' + amount,
                 // confirmUrlType: 'CLIENT',
                 confirmUrlType: 'SERVER',
                 cancelUrl: '',
@@ -88,12 +97,11 @@ async function pushPerformances(MID: string, day: string) {
             }
         });
 
-        console.log(startLinePayResponse.info.paymentUrl);
-        if (startLinePayResponse.returnCode !== '0000') return false;
+        if (startLinePayResponse.returnCode !== '0000') return;
 
-        return {
+        columns.push({
             thumbnailImageUrl: performance.film_image,
-            title: performance.film_name,
+            title: performance.film_name.substr(0, MAX_TITLE_LENGTH),
             text: performance.theater_name,
             actions: [
                 {
@@ -104,12 +112,13 @@ async function pushPerformances(MID: string, day: string) {
                 {
                     type: 'uri',
                     label: '作品詳細',
-                    uri: 'https://www.google.co.jp/#q=' + performance.film_name
+                    uri: 'https://www.google.co.jp/?#q=' + encodeURIComponent(performance.film_name)
                 }
             ]
-        };
+        });
     });
-    console.log(columns);
+
+    await Promise.all(promises);
 
     // push message
     await request.post({
@@ -148,14 +157,14 @@ router.all('/webhook', async (req, res) => {
                 case 'message':
                     const message = event.message.text;
 
-                    switch (message) {
-                        case '予約':
-                            pushMessage(MID, 'いつ？');
+                    switch (true) {
+                        case /^予約$/.test(message):
+                            await pushMessage(MID, 'いつ？');
                             break;
 
                         // 日付への返答
-                        case /[0-9]{6}/:
-                            pushPerformances(MID, message);
+                        case /^\d{8}$/.test(message):
+                            await pushPerformances(MID, message);
                             break;
 
                         default:
@@ -180,14 +189,14 @@ router.all('/webhook', async (req, res) => {
                                 reply = candidates[0].word;
                             }
 
-                            pushMessage(MID, reply);
+                            await pushMessage(MID, reply);
                             break;
                     }
 
                     break;
 
                 case 'postback':
-                    pushMessage(MID, event.postback.data);
+                    await pushMessage(MID, event.postback.data);
 
                     break;
 
@@ -214,13 +223,13 @@ router.all('/linepay/confirm', async (req, res) => {
                 'X-LINE-ChannelSecret': process.env.LINE_PAY_CHANNEL_SECRET
             },
             json: {
-                amount: 1,
+                amount: req.query.amount,
                 currency: 'JPY'
             }
         });
 
         if (confirmLinePayResponse.returnCode === '0000') {
-            reply = '決済完了！' + JSON.stringify(req.query);
+            reply = '上映当日はこのQRコードをタップすると入場できるよ！';
         } else {
             reply = '決済を完了できませんでした' + confirmLinePayResponse.returnMessage;
         }
@@ -237,6 +246,27 @@ router.all('/linepay/confirm', async (req, res) => {
                     {
                         type: 'text',
                         text: reply
+                    },
+                    {
+                        type: 'imagemap',
+                        baseUrl: 'https://devssktslinebot.azurewebsites.net/images/qrcode',
+                        altText: 'qrcode',
+                        baseSize: {
+                            height: 1040,
+                            width: 1040
+                        },
+                        actions: [
+                            {
+                                type: 'message',
+                                text: '入場？？',
+                                area: {
+                                    x: 520,
+                                    y: 0,
+                                    width: 520,
+                                    height: 1040
+                                }
+                            }
+                        ]
                     }
                 ]
             }

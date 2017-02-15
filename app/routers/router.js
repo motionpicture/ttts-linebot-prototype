@@ -42,13 +42,21 @@ function pushPerformances(MID, day) {
     return __awaiter(this, void 0, void 0, function* () {
         const searchPerformancesResponse = yield request.get({
             url: 'https://devtttsapiprototype.azurewebsites.net/ja/performance/search',
+            json: true,
             qs: {
                 day: day
             }
         });
         const MAX_COLUMNS = 3;
-        const performances = searchPerformancesResponse.results.slice(0, Math.min(MAX_COLUMNS - 1, searchPerformancesResponse.results.length - 1));
-        const columns = performances.map((performance) => __awaiter(this, void 0, void 0, function* () {
+        const performances = searchPerformancesResponse.results.slice(0, Math.min(MAX_COLUMNS, searchPerformancesResponse.results.length));
+        if (performances.length === 0) {
+            yield pushMessage(MID, 'なんもやってない');
+            return;
+        }
+        const columns = [];
+        const MAX_TITLE_LENGTH = 30;
+        const promises = performances.map((performance) => __awaiter(this, void 0, void 0, function* () {
+            const amount = 1500;
             const startLinePayResponse = yield request.post({
                 url: 'https://sandbox-api-pay.line.me/v2/payments/request',
                 headers: {
@@ -57,9 +65,10 @@ function pushPerformances(MID, day) {
                 },
                 json: {
                     productName: performance.film_name,
-                    amount: 1500,
+                    productImageUrl: performance.film_image,
+                    amount: amount,
                     currency: 'JPY',
-                    confirmUrl: 'https://devssktslinebot.azurewebsites.net/linepay/confirm?mid=' + MID,
+                    confirmUrl: 'https://devssktslinebot.azurewebsites.net/linepay/confirm?mid=' + MID + '&amount=' + amount,
                     confirmUrlType: 'SERVER',
                     cancelUrl: '',
                     orderId: 'LINEPayOrder_' + Date.now(),
@@ -68,12 +77,11 @@ function pushPerformances(MID, day) {
                     capture: false
                 }
             });
-            console.log(startLinePayResponse.info.paymentUrl);
             if (startLinePayResponse.returnCode !== '0000')
-                return false;
-            return {
+                return;
+            columns.push({
                 thumbnailImageUrl: performance.film_image,
-                title: performance.film_name,
+                title: performance.film_name.substr(0, MAX_TITLE_LENGTH),
                 text: performance.theater_name,
                 actions: [
                     {
@@ -84,12 +92,12 @@ function pushPerformances(MID, day) {
                     {
                         type: 'uri',
                         label: '作品詳細',
-                        uri: 'https://www.google.co.jp/#q=' + performance.film_name
+                        uri: 'https://www.google.co.jp/?#q=' + encodeURIComponent(performance.film_name)
                     }
                 ]
-            };
+            });
         }));
-        console.log(columns);
+        yield Promise.all(promises);
         yield request.post({
             simple: false,
             url: 'https://api.line.me/v2/bot/message/push',
@@ -121,12 +129,12 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
             switch (event.type) {
                 case 'message':
                     const message = event.message.text;
-                    switch (message) {
-                        case '予約':
-                            pushMessage(MID, 'いつ？');
+                    switch (true) {
+                        case /^予約$/.test(message):
+                            yield pushMessage(MID, 'いつ？');
                             break;
-                        case /[0-9]{6}/:
-                            pushPerformances(MID, message);
+                        case /^\d{8}$/.test(message):
+                            yield pushPerformances(MID, message);
                             break;
                         default:
                             const generateNextWordsResult = yield request.post({
@@ -147,12 +155,12 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
                             if (candidates.length > 0) {
                                 reply = candidates[0].word;
                             }
-                            pushMessage(MID, reply);
+                            yield pushMessage(MID, reply);
                             break;
                     }
                     break;
                 case 'postback':
-                    pushMessage(MID, event.postback.data);
+                    yield pushMessage(MID, event.postback.data);
                     break;
                 default:
                     break;
@@ -175,12 +183,12 @@ router.all('/linepay/confirm', (req, res) => __awaiter(this, void 0, void 0, fun
                 'X-LINE-ChannelSecret': process.env.LINE_PAY_CHANNEL_SECRET
             },
             json: {
-                amount: 1,
+                amount: req.query.amount,
                 currency: 'JPY'
             }
         });
         if (confirmLinePayResponse.returnCode === '0000') {
-            reply = '決済完了！' + JSON.stringify(req.query);
+            reply = '上映当日はこのQRコードをタップすると入場できるよ！';
         }
         else {
             reply = '決済を完了できませんでした' + confirmLinePayResponse.returnMessage;
@@ -196,6 +204,27 @@ router.all('/linepay/confirm', (req, res) => __awaiter(this, void 0, void 0, fun
                     {
                         type: 'text',
                         text: reply
+                    },
+                    {
+                        type: 'imagemap',
+                        baseUrl: 'https://devssktslinebot.azurewebsites.net/images/qrcode',
+                        altText: 'qrcode',
+                        baseSize: {
+                            height: 1040,
+                            width: 1040
+                        },
+                        actions: [
+                            {
+                                type: 'message',
+                                text: '入場？？',
+                                area: {
+                                    x: 520,
+                                    y: 0,
+                                    width: 520,
+                                    height: 1040
+                                }
+                            }
+                        ]
                     }
                 ]
             }
