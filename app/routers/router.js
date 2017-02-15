@@ -236,7 +236,7 @@ router.all('/linepay/confirm', (req, res) => __awaiter(this, void 0, void 0, fun
     }
     res.send(reply);
 }));
-router.get('/linepay/qrcode', (_req, res, next) => {
+router.get('/linepay/qrcode/:width', (_req, res, next) => {
     fs.readFile(__dirname + '/../../public/images/qrcode.png', (err, data) => {
         if (err)
             return next(err);

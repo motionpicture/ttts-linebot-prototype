@@ -281,7 +281,7 @@ router.all('/linepay/confirm', async (req, res) => {
 
 
 // tslint:disable-next-line:variable-name
-router.get('/linepay/qrcode', (_req, res, next) => {
+router.get('/linepay/qrcode/:width', (_req, res, next) => {
     fs.readFile(__dirname + '/../../public/images/qrcode.png', (err, data) => {
         if (err) return next(err);
         res.contentType('image/png');
