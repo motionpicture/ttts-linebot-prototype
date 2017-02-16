@@ -138,7 +138,7 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
                             yield pushPerformances(MID, message);
                             break;
                         case /^\d{4}\/\d{2}\/\d{2}$/.test(message):
-                            yield pushPerformances(MID, `${message.substr(0, 4)}${message.substr(4, 2)}${message.substr(6, 2)}`);
+                            yield pushPerformances(MID, `${message.substr(0, 4)}${message.substr(5, 2)}${message.substr(8, 2)}`);
                             break;
                         default:
                             const generateNextWordsResult = yield request.post({
