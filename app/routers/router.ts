@@ -156,7 +156,7 @@ router.all('/webhook', async (req, res) => {
 
             switch (event.type) {
                 case 'message':
-                    const message = event.message.text;
+                    const message: string = event.message.text;
 
                     switch (true) {
                         case /^予約$/.test(message):
@@ -166,6 +166,11 @@ router.all('/webhook', async (req, res) => {
                         // 日付への返答
                         case /^\d{8}$/.test(message):
                             await pushPerformances(MID, message);
+                            break;
+
+                        // 日付(YYYY/MM/DD)
+                        case /^\d{4}\/\d{2}\/\d{2}$/.test(message):
+                            await pushPerformances(MID, `${message.substr(0, 4)}${message.substr(4, 2)}${message.substr(6, 2)}`);
                             break;
 
                         default:
