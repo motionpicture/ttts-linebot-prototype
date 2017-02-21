@@ -42,7 +42,7 @@ function pushMessage(MID, text) {
 function pushPerformances(MID, day) {
     return __awaiter(this, void 0, void 0, function* () {
         const searchPerformancesResponse = yield request.get({
-            url: 'https://devssktsdemoapi.azurewebsites.net//ja/performance/search',
+            url: 'https://devtttsapi.azurewebsites.net/ja/performance/search',
             json: true,
             qs: {
                 day: day

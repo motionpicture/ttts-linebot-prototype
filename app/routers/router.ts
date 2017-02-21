@@ -54,7 +54,7 @@ async function pushMessage(MID: string, text: string) {
 async function pushPerformances(MID: string, day: string) {
     // パフォーマンス検索
     const searchPerformancesResponse = await request.get({
-        url: 'https://devssktsdemoapi.azurewebsites.net//ja/performance/search',
+        url: 'https://devtttsapi.azurewebsites.net/ja/performance/search',
         json: true,
         qs: {
             day: day

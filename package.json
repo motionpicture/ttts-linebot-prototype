@@ -37,6 +37,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "mocha --no-timeouts --recursive",
+    "tsc": "tsc -w",
     "tslint": "tslint -c tslint.json lib/**/*.ts"
   },
   "version": "1.0.0"
