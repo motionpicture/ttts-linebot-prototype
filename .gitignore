@@ -1,9 +1,9 @@
-logs/*
-node_modules/*
-typings/*
-iisnode/*
-npm-debug.log
-.vscode/*
+logs/
+node_modules/
+iisnode/
+npm-debug.log*
+.vscode/
+.env*
 
 !.gitignore
 !.gitkeep

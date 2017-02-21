@@ -1,5 +1,7 @@
 "use strict";
+const createDebug = require("debug");
 const request = require("request");
+const debug = createDebug('sskts-linebot:*');
 request.post('https://api.line.me/v2/bot/message/multicast', {
     auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
     json: true,
@@ -38,5 +40,5 @@ request.post('https://api.line.me/v2/bot/message/multicast', {
         ]
     }
 }, (err, response, body) => {
-    console.log(err, response.statusCode, body);
+    debug(err, response.statusCode, body);
 });

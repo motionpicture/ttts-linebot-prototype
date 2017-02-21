@@ -7,12 +7,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+const createDebug = require("debug");
 const express = require("express");
 const fs = require("fs-extra");
 const request = require("request-promise-native");
 const router = express.Router();
+const debug = createDebug('sskts-linebot:*');
 router.get('/environmentVariables', (req, res) => {
-    console.log('ip:', req.ip);
+    debug('ip:', req.ip);
     res.json({
         data: {
             type: 'envs',
@@ -42,7 +44,7 @@ function pushMessage(MID, text) {
 function pushPerformances(MID, day) {
     return __awaiter(this, void 0, void 0, function* () {
         const searchPerformancesResponse = yield request.get({
-            url: 'https://devtttsapi.azurewebsites.net/ja/performance/search',
+            url: process.env.MP_API_ENDPOINT + '/ja/performance/search',
             json: true,
             qs: {
                 day: day
@@ -121,7 +123,7 @@ function pushPerformances(MID, day) {
     });
 }
 router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* () {
-    console.log('body:', JSON.stringify(req.body));
+    debug('body:', JSON.stringify(req.body));
     let reply = '...(´д≡; )';
     try {
         const event = (req.body.events) ? req.body.events[0] : undefined;
@@ -154,7 +156,7 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
                                 },
                                 useQuerystring: true
                             });
-                            console.log(generateNextWordsResult);
+                            debug(generateNextWordsResult);
                             const candidates = generateNextWordsResult.candidates;
                             if (candidates.length > 0) {
                                 reply = candidates[0].word;
@@ -178,7 +180,7 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
 }));
 router.all('/linepay/confirm', (req, res) => __awaiter(this, void 0, void 0, function* () {
     let reply = '';
-    console.log(req.query);
+    debug(req.query);
     try {
         const confirmLinePayResponse = yield request.post({
             url: 'https://sandbox-api-pay.line.me/v2/payments/' + req.query.transactionId + '/confirm',

@@ -1,4 +1,11 @@
-import request = require('request-promise-native');
+/**
+ * Line Payを開始する
+ * Line PayにはIP制限があるので注意
+ */
+import * as createDebug from 'debug';
+import * as request from 'request-promise-native';
+
+const debug = createDebug('sskts-linebot:*');
 
 async function main() {
     const response = await request.post({
@@ -7,13 +14,13 @@ async function main() {
             'X-LINE-ChannelId': process.env.LINE_PAY_CHANNEL_ID,
             'X-LINE-ChannelSecret': process.env.LINE_PAY_CHANNEL_SECRET
         },
-        // json: true,
         json: {
             productName: '商品名',
             amount: 1,
             currency: 'JPY',
             // confirmUrl: `https://${req.headers["host"]}/linepay/confirm`,
-            confirmUrl: `http://localhost:8080/linepay/confirm`,
+            // tslint:disable-next-line:no-http-string
+            confirmUrl: 'http://localhost:8080/linepay/confirm',
             confirmUrlType: 'CLIENT',
             cancelUrl: '',
             orderId: 'LINEPayOrder_' + Date.now(),
@@ -24,7 +31,7 @@ async function main() {
     });
 
     if (response.returnCode !== '0000') throw new Error(response.returnMessage);
-    console.log(response.info.paymentUrl);
+    debug(response.info.paymentUrl);
 }
 
 try {

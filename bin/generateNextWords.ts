@@ -1,4 +1,10 @@
+/**
+ * cognitive serviceでnext wordsを検索する
+ */
+import * as createDebug from 'debug';
 import * as request from 'request';
+
+const debug = createDebug('sskts-linebot:*');
 
 request.post(
     'https://westus.api.cognitive.microsoft.com/text/weblm/v1.0/generateNextWords',
@@ -11,8 +17,8 @@ request.post(
             model: 'query',
             words: '映画予約'
         }
-
-    }, (err, response, body) => {
-        console.log(err, response.statusCode, body);
+    },
+    (err, response, body) => {
+        debug(err, response.statusCode, body);
     }
 );

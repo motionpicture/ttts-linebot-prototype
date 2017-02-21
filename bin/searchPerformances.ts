@@ -1,15 +1,21 @@
-import request = require('request-promise-native');
+/**
+ * パフォーマンスを検索する
+ */
+import * as createDebug from 'debug';
+import * as request from 'request-promise-native';
+
+const debug = createDebug('sskts-linebot:*');
 
 async function main() {
     const response = await request.get({
-        url: 'https://devtttsapiprototype.azurewebsites.net/ja/performance/search',
+        url: process.env.MP_API_ENDPOINT + '/ja/performance/search',
         json: true,
         qs: {
             day: '20171025'
         }
     });
 
-    console.log(response.results);
+    debug(response.results);
 }
 
 try {

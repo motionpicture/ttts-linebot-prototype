@@ -7,17 +7,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+const createDebug = require("debug");
 const request = require("request-promise-native");
+const debug = createDebug('sskts-linebot:*');
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield request.get({
-            url: 'https://devtttsapiprototype.azurewebsites.net/ja/performance/search',
+            url: process.env.MP_API_ENDPOINT + '/ja/performance/search',
             json: true,
             qs: {
                 day: '20171025'
             }
         });
-        console.log(response.results);
+        debug(response.results);
     });
 }
 try {

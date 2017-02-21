@@ -1,13 +1,27 @@
 {
-  "author": "Tetsu Yamazaki <yamazaki@motionpicture.jp>",
+  "author": {
+    "name": "Motionpicture co.,ltd."
+  },
+  "contributors": [
+    {
+      "name": "Otomichi Makoto",
+      "email": "otomichi@motionpicture.jp"
+    },
+    {
+      "name": "Tetsu Yamazaki",
+      "email": "yamazaki@motionpicture.jp"
+    }
+  ],
   "config": {},
   "dependencies": {
     "@types/body-parser": "0.0.33",
+    "@types/debug": "0.0.29",
     "@types/express": "^4.0.34",
     "@types/fs-extra": "0.0.37",
     "@types/request": "0.0.39",
     "@types/request-promise-native": "^1.0.2",
     "body-parser": "latest",
+    "debug": "2.6.1",
     "express": "^4.14.0",
     "fs-extra": "^2.0.0",
     "request": "^2.79.0",
@@ -31,14 +45,14 @@
   },
   "keywords": [],
   "license": "UNLICENSED",
-  "name": "sskts_src_linebot",
+  "name": "sskts-linebot",
   "private": true,
   "repository": {},
   "scripts": {
     "start": "node server.js",
     "test": "mocha --no-timeouts --recursive",
     "tsc": "tsc -w",
-    "tslint": "tslint -c tslint.json lib/**/*.ts"
+    "tslint": "tslint -c tslint.json app/**/*.ts bin/**/*.ts server.ts"
   },
   "version": "1.0.0"
 }

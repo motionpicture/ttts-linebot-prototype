@@ -1,5 +1,10 @@
-// tslint:disable-next-line:missing-jsdoc
+/**
+ * 確認タイプのテンプレートメッセージをトークに送信する
+ */
+import * as createDebug from 'debug';
 import * as request from 'request';
+
+const debug = createDebug('sskts-linebot:*');
 
 request.post(
     'https://api.line.me/v2/bot/message/multicast',
@@ -7,7 +12,7 @@ request.post(
         auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
         json: true,
         body: {
-            to: [
+            to: [ // 複数人に送信する場合
                 'U28fba84b4008d60291fc861e2562b34f',
                 'U530ab5b70e9c494215c5e923c4d75d59',
                 'U146f3509cf1b6f580e873c2d22d24749',
@@ -43,7 +48,6 @@ request.post(
 
     },
     (err, response, body) => {
-        // tslint:disable-next-line:no-console
-        console.log(err, response.statusCode, body);
+        debug(err, response.statusCode, body);
     }
 );

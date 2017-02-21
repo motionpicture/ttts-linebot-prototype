@@ -1,37 +1,39 @@
 "use strict";
-let startTime = process.hrtime();
-const app = require("./app/app");
+const startTime = process.hrtime();
+const createDebug = require("debug");
 const http = require("http");
-let port = normalizePort(process.env.PORT || process.env.npm_config_port);
-app.set("port", port);
-let server = http.createServer(app);
+const app = require("./app/app");
+const debug = createDebug('app:server');
+const port = normalizePort(process.env.PORT || process.env.npm_config_port);
+app.set('port', port);
+const server = http.createServer(app);
 server.listen(port);
-server.on("error", onError);
-server.on("listening", onListening);
+server.on('error', onError);
+server.on('listening', onListening);
 function normalizePort(val) {
-    let port = parseInt(val, 10);
-    if (isNaN(port)) {
+    const portNumber = parseInt(val, 10);
+    if (isNaN(portNumber)) {
         return val;
     }
-    if (port >= 0) {
-        return port;
+    if (portNumber >= 0) {
+        return portNumber;
     }
     return false;
 }
 function onError(error) {
-    if (error.syscall !== "listen") {
+    if (error.syscall !== 'listen') {
         throw error;
     }
-    let bind = typeof port === "string"
-        ? "Pipe " + port
-        : "Port " + port;
+    const bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
     switch (error.code) {
-        case "EACCES":
-            console.error(bind + " requires elevated privileges");
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
             process.exit(1);
             break;
-        case "EADDRINUSE":
-            console.error(bind + " is already in use");
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
             process.exit(1);
             break;
         default:
@@ -39,11 +41,11 @@ function onError(error) {
     }
 }
 function onListening() {
-    let addr = server.address();
-    let bind = typeof addr === "string"
-        ? "pipe " + addr
-        : "port " + addr.port;
-    console.log("Listening on " + bind);
-    let diff = process.hrtime(startTime);
-    console.log(`api server listening took ${diff[0]} seconds and ${diff[1]} nanoseconds.`);
+    const addr = server.address();
+    const bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+    debug('Listening on ' + bind);
+    const diff = process.hrtime(startTime);
+    debug(`api server listening took ${diff[0]} seconds and ${diff[1]} nanoseconds.`);
 }

@@ -1,17 +1,23 @@
-// tslint:disable:missing-jsdoc no-console
+/**
+ * ルーター
+ *
+ * @ignore
+ */
+import * as createDebug from 'debug';
 import * as express from 'express';
 import * as fs from 'fs-extra';
 import * as request from 'request-promise-native';
 const router = express.Router();
+const debug = createDebug('sskts-linebot:*');
 
 // middleware that is specific to this router
 // router.use((req, res, next) => {
-//   console.log('Time: ', Date.now())
+//   debug('Time: ', Date.now())
 //   next()
 // })
 
 router.get('/environmentVariables', (req, res) => {
-    console.log('ip:', req.ip);
+    debug('ip:', req.ip);
     res.json({
         data: {
             type: 'envs',
@@ -54,7 +60,7 @@ async function pushMessage(MID: string, text: string) {
 async function pushPerformances(MID: string, day: string) {
     // パフォーマンス検索
     const searchPerformancesResponse = await request.get({
-        url: 'https://devtttsapi.azurewebsites.net/ja/performance/search',
+        url: process.env.MP_API_ENDPOINT + '/ja/performance/search',
         json: true,
         qs: {
             day: day
@@ -144,7 +150,7 @@ async function pushPerformances(MID: string, day: string) {
 }
 
 router.all('/webhook', async (req, res) => {
-    console.log('body:', JSON.stringify(req.body));
+    debug('body:', JSON.stringify(req.body));
 
     let reply = '...(´д≡; )';
 
@@ -170,6 +176,7 @@ router.all('/webhook', async (req, res) => {
 
                         // 日付(YYYY/MM/DD)
                         case /^\d{4}\/\d{2}\/\d{2}$/.test(message):
+                            // tslint:disable-next-line:no-magic-numbers
                             await pushPerformances(MID, `${message.substr(0, 4)}${message.substr(5, 2)}${message.substr(8, 2)}`);
                             break;
 
@@ -189,7 +196,7 @@ router.all('/webhook', async (req, res) => {
                                 useQuerystring: true
                             });
 
-                            console.log(generateNextWordsResult);
+                            debug(generateNextWordsResult);
                             const candidates: any[] = generateNextWordsResult.candidates;
                             if (candidates.length > 0) {
                                 reply = candidates[0].word;
@@ -219,7 +226,7 @@ router.all('/webhook', async (req, res) => {
 
 router.all('/linepay/confirm', async (req, res) => {
     let reply = '';
-    console.log(req.query);
+    debug(req.query);
 
     try {
         const confirmLinePayResponse = await request.post({
@@ -283,7 +290,6 @@ router.all('/linepay/confirm', async (req, res) => {
 
     res.send(reply);
 });
-
 
 // tslint:disable-next-line:variable-name
 router.get('/linepay/qrcode/:width', (_req, res, next) => {

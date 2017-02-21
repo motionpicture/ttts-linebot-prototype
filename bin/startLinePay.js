@@ -7,7 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+const createDebug = require("debug");
 const request = require("request-promise-native");
+const debug = createDebug('sskts-linebot:*');
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield request.post({
@@ -20,7 +22,7 @@ function main() {
                 productName: '商品名',
                 amount: 1,
                 currency: 'JPY',
-                confirmUrl: `http://localhost:8080/linepay/confirm`,
+                confirmUrl: 'http://localhost:8080/linepay/confirm',
                 confirmUrlType: 'CLIENT',
                 cancelUrl: '',
                 orderId: 'LINEPayOrder_' + Date.now(),
@@ -31,7 +33,7 @@ function main() {
         });
         if (response.returnCode !== '0000')
             throw new Error(response.returnMessage);
-        console.log(response.info.paymentUrl);
+        debug(response.info.paymentUrl);
     });
 }
 try {
