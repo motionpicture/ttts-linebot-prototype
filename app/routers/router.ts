@@ -166,9 +166,11 @@ router.all('/webhook', async (req, res) => {
 
                     switch (true) {
                         case /^予約$/.test(message):
-                            await pushMessage(MID, 'いつ？');
+                            await pushMessage(MID, 'いつぽん？');
                             break;
-
+                        case /^カープ$/.test(message):
+                            await pushMessage(MID, '2017年筆頭');
+                            break;
                         // 日付への返答
                         case /^\d{8}$/.test(message):
                             await pushPerformances(MID, message);

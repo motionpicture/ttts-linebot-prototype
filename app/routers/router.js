@@ -134,7 +134,10 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
                     const message = event.message.text;
                     switch (true) {
                         case /^予約$/.test(message):
-                            yield pushMessage(MID, 'いつ？');
+                            yield pushMessage(MID, 'いつぽん？');
+                            break;
+                        case /^カープ$/.test(message):
+                            yield pushMessage(MID, '2017年筆頭');
                             break;
                         case /^\d{8}$/.test(message):
                             yield pushPerformances(MID, message);
