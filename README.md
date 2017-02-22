@@ -68,7 +68,7 @@ set WEBSITE_TIME_ZONE=Tokyo Standard Time
 
 # JsDoc
 
-`grunt jsdoc`でjsdocを作成できます。./docsに出力されます。
+`npm run jsdoc`でjsdocを作成できます。./docsに出力されます。
 
 
 # 参考
