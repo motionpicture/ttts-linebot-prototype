@@ -41,6 +41,199 @@ function pushMessage(MID, text) {
         });
     });
 }
+function getTranslatorText(text) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const transelatorTokenResult = yield request.post({
+            simple: false,
+            url: 'https://api.cognitive.microsoft.com/sts/v1.0/issueToken',
+            headers: {
+                'Ocp-Apim-Subscription-Key': '44219c7bb60743d4a380fc45ea78a66f',
+                'Content-Type': 'application/json'
+            },
+            json: true
+        });
+        debug('getTranslatorText text：' + text);
+        const getTranslatorResult = yield request.get({
+            simple: false,
+            url: 'https://api.microsofttranslator.com/v2/http.svc/Translate?appid=Bearer ' +
+                transelatorTokenResult + '&text=' + encodeURIComponent(text) + '&from=ja&to=en'
+        });
+        debug('getTranslatorText getTranslatorResult：' + getTranslatorResult.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, ''));
+        return getTranslatorResult.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, '');
+    });
+}
+function getQnAText(text) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const getQnATextResult = yield request.post({
+            simple: false,
+            url: 'https://westus.api.cognitive.microsoft.com/qnamaker/v1.0/knowledgebases/8564d98a-7bf6-4a1d-9e02-6bca84592264/generateAnswer',
+            headers: {
+                'Ocp-Apim-Subscription-Key': '01d8e8acf75b4ec0babed7f0e3ad644c',
+                'Content-Type': 'application/json'
+            },
+            json: true,
+            body: {
+                question: text
+            }
+        });
+        debug('getQnATextResult：' + JSON.stringify(getQnATextResult));
+        return JSON.stringify(getQnATextResult);
+    });
+}
+function pushFirstChoice(MID) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield request.post({
+            simple: false,
+            url: 'https://api.line.me/v2/bot/message/push',
+            auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+            json: true,
+            body: {
+                to: MID,
+                messages: [
+                    {
+                        type: 'template',
+                        altText: 'こんにちは！どうしたの～？',
+                        template: {
+                            type: 'confirm',
+                            thumbnailImageUrl: 'https://www.tokyotower.co.jp/event/files/_MG_4371.JPG',
+                            text: 'こんにちは！どうしたの～？',
+                            actions: [
+                                {
+                                    type: 'message',
+                                    label: 'チケット予約',
+                                    text: 'チケット予約'
+                                },
+                                {
+                                    type: 'message',
+                                    label: '質問',
+                                    text: '質問'
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        });
+    });
+}
+function pushDate(MID) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield request.post({
+            simple: false,
+            url: 'https://api.line.me/v2/bot/message/push',
+            auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+            json: true,
+            body: {
+                to: MID,
+                messages: [
+                    {
+                        type: 'template',
+                        altText: 'いつにする(代替)？？',
+                        template: {
+                            type: 'buttons',
+                            thumbnailImageUrl: 'https://www.tokyotower.co.jp/event/files/_MG_4371.JPG',
+                            text: '承ったぜ。いつにする？？',
+                            actions: [
+                                {
+                                    type: 'message',
+                                    label: '今日',
+                                    text: '今日'
+                                },
+                                {
+                                    type: 'message',
+                                    label: '明日',
+                                    text: '明日'
+                                },
+                                {
+                                    type: 'message',
+                                    label: 'その他',
+                                    text: 'その他'
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        });
+    });
+}
+function pushNumber(MID) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield request.post({
+            simple: false,
+            url: 'https://api.line.me/v2/bot/message/push',
+            auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+            json: true,
+            body: {
+                to: MID,
+                messages: [
+                    {
+                        type: 'template',
+                        altText: 'aaa',
+                        template: {
+                            type: 'buttons',
+                            thumbnailImageUrl: 'https://devssktslinebotdemo.blob.core.windows.net/image/tokyo.PNG',
+                            text: '4枚まで買えるよ～',
+                            actions: [
+                                {
+                                    type: 'message',
+                                    label: '1枚',
+                                    text: '1枚'
+                                },
+                                {
+                                    type: 'message',
+                                    label: '2枚',
+                                    text: '2枚'
+                                },
+                                {
+                                    type: 'message',
+                                    label: '3枚',
+                                    text: '3枚'
+                                },
+                                {
+                                    type: 'message',
+                                    label: '4枚',
+                                    text: '4枚'
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        });
+    });
+}
+function pushCoupon(MID) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield request.post({
+            simple: false,
+            url: 'https://api.line.me/v2/bot/message/push',
+            auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+            json: true,
+            body: {
+                to: MID,
+                messages: [
+                    {
+                        type: 'template',
+                        altText: 'aaa',
+                        template: {
+                            type: 'buttons',
+                            thumbnailImageUrl: 'https://devssktslinebotdemo.blob.core.windows.net/image/tokyo.PNG',
+                            text: '【LINE@友達限定】のっぽんアクセサリーをプレゼント♪',
+                            actions: [
+                                {
+                                    type: 'message',
+                                    label: '今すぐ確認',
+                                    text: '1枚'
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        });
+    });
+}
 function pushPerformances(MID, day) {
     return __awaiter(this, void 0, void 0, function* () {
         const searchPerformancesResponse = yield request.get({
@@ -50,10 +243,11 @@ function pushPerformances(MID, day) {
                 day: day
             }
         });
+        debug('searchPerformancesResponse.results.length：' + searchPerformancesResponse.results.length);
         const MAX_COLUMNS = 3;
         const performances = searchPerformancesResponse.results.slice(0, Math.min(MAX_COLUMNS, searchPerformancesResponse.results.length));
         if (performances.length === 0) {
-            yield pushMessage(MID, 'なんもやってない');
+            yield pushMessage(MID, 'その日はチケット売ってないな～。他の日を入力してみて！！');
             return;
         }
         const columns = [];
@@ -71,7 +265,7 @@ function pushPerformances(MID, day) {
                     productImageUrl: performance.film_image,
                     amount: amount,
                     currency: 'JPY',
-                    confirmUrl: 'https://devssktslinebot.azurewebsites.net/linepay/confirm?mid=' + MID + '&amount=' + amount,
+                    confirmUrl: 'https://devssktslinebot-demo.azurewebsites.net/linepay/confirm?mid=' + MID + '&amount=' + amount,
                     confirmUrlType: 'SERVER',
                     cancelUrl: '',
                     orderId: 'LINEPayOrder_' + Date.now(),
@@ -82,6 +276,7 @@ function pushPerformances(MID, day) {
             });
             if (startLinePayResponse.returnCode !== '0000')
                 return;
+            debug(startLinePayResponse.returnCode);
             columns.push({
                 thumbnailImageUrl: performance.film_image,
                 title: performance.film_name.substr(0, MAX_TITLE_LENGTH),
@@ -124,7 +319,7 @@ function pushPerformances(MID, day) {
 }
 router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* () {
     debug('body:', JSON.stringify(req.body));
-    let reply = '...(´д≡; )';
+    let reply = '';
     try {
         const event = (req.body.events) ? req.body.events[0] : undefined;
         if (event) {
@@ -134,10 +329,47 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
                     const message = event.message.text;
                     switch (true) {
                         case /^予約$/.test(message):
-                            yield pushMessage(MID, 'いつぽん？');
+                            yield pushDate(MID);
                             break;
-                        case /^カープ$/.test(message):
-                            yield pushMessage(MID, '2017年筆頭');
+                        case /^チケット予約$/.test(message):
+                            yield pushDate(MID);
+                            break;
+                        case /^チケット$/.test(message):
+                            yield pushDate(MID);
+                            break;
+                        case /^のっぽん$/.test(message):
+                            yield pushFirstChoice(MID);
+                            break;
+                        case /^のっぽん！$/.test(message):
+                            yield pushFirstChoice(MID);
+                            break;
+                        case /^ヘルプ$/.test(message):
+                            yield pushFirstChoice(MID);
+                            break;
+                        case /^質問$/.test(message):
+                            yield pushMessage(MID, '何か聞きたいのかな？？');
+                            break;
+                        case /^のっぽんに質問$/.test(message):
+                            yield pushMessage(MID, '何か聞きたいのかな？？');
+                            break;
+                        case /^のっぽんに質問$/.test(message):
+                            yield pushMessage(MID, '何か聞きたいのかな？？');
+                            break;
+                        case /^クーポン$/.test(message):
+                            yield pushCoupon(MID);
+                            break;
+                        case /^今日$/.test(message):
+                            yield pushMessage(MID, '今日だね！');
+                            yield pushMessage(MID, '何枚欲しい？');
+                            yield pushNumber(MID);
+                            break;
+                        case /^明日$/.test(message):
+                            yield pushMessage(MID, '明日だね！');
+                            yield pushMessage(MID, '何枚欲しい？');
+                            yield pushNumber(MID);
+                            break;
+                        case /^その他$/.test(message):
+                            yield pushMessage(MID, 'じゃあいつにする？？');
                             break;
                         case /^\d{8}$/.test(message):
                             yield pushPerformances(MID, message);
@@ -145,26 +377,33 @@ router.all('/webhook', (req, res) => __awaiter(this, void 0, void 0, function* (
                         case /^\d{4}\/\d{2}\/\d{2}$/.test(message):
                             yield pushPerformances(MID, `${message.substr(0, 4)}${message.substr(5, 2)}${message.substr(8, 2)}`);
                             break;
+                        case /^1枚$/.test(message):
+                            yield pushMessage(MID, 'おっけい！探してくるね～');
+                            yield pushPerformances(MID, '20171030');
+                            yield pushMessage(MID, '作品を選んだら決済画面に遷移するよ～');
+                            break;
+                        case /^2枚$/.test(message):
+                            yield pushMessage(MID, 'おっけい！探してくるね～');
+                            yield pushPerformances(MID, '20171030');
+                            yield pushMessage(MID, '作品を選んだら決済画面に遷移するよ～');
+                            break;
+                        case /^3枚$/.test(message):
+                            yield pushMessage(MID, 'おっけい！探してくるね～');
+                            yield pushPerformances(MID, '20171030');
+                            yield pushMessage(MID, '作品を選んだら決済画面に遷移するよ～');
+                            break;
+                        case /^4枚$/.test(message):
+                            yield pushMessage(MID, 'おっけい！探してくるね～');
+                            yield pushPerformances(MID, '20171030');
+                            yield pushMessage(MID, '作品を選んだら決済画面に遷移するよ～');
+                            break;
                         default:
-                            const generateNextWordsResult = yield request.post({
-                                simple: false,
-                                url: 'https://westus.api.cognitive.microsoft.com/text/weblm/v1.0/generateNextWords',
-                                headers: {
-                                    'Ocp-Apim-Subscription-Key': 'ecdeb8bb4a5f481ab42e2ff2b765c962'
-                                },
-                                json: true,
-                                qs: {
-                                    model: 'query',
-                                    words: message
-                                },
-                                useQuerystring: true
-                            });
-                            debug(generateNextWordsResult);
-                            const candidates = generateNextWordsResult.candidates;
-                            if (candidates.length > 0) {
-                                reply = candidates[0].word;
-                            }
-                            yield pushMessage(MID, reply);
+                            const TranslatorTextResult = yield getTranslatorText(message);
+                            const QnAResult = yield getQnAText(TranslatorTextResult);
+                            let QnAReturn = JSON.parse(QnAResult)['answer'];
+                            debug('answer：' + QnAReturn);
+                            QnAReturn = QnAReturn == 'No good match found in the KB' ? 'ちょっと分からない内容だなぁ。。ホームページ見てみて！https://www.tokyotower.co.jp/index.html' : QnAReturn;
+                            yield pushMessage(MID, QnAReturn);
                             break;
                     }
                     break;
@@ -200,6 +439,8 @@ router.all('/linepay/confirm', (req, res) => __awaiter(this, void 0, void 0, fun
             reply = '上映当日はこのQRコードをタップすると入場できるよ！';
         }
         else {
+            debug('confirmLinePayResponse.returnCode：' + confirmLinePayResponse.returnCode);
+            debug('confirmLinePayResponse.returnMessage' + confirmLinePayResponse.returnMessage);
             reply = '決済を完了できませんでした' + confirmLinePayResponse.returnMessage;
         }
         yield request.post({
@@ -216,7 +457,7 @@ router.all('/linepay/confirm', (req, res) => __awaiter(this, void 0, void 0, fun
                     },
                     {
                         type: 'imagemap',
-                        baseUrl: 'https://devssktslinebot.azurewebsites.net/linepay/qrcode',
+                        baseUrl: 'https://devssktslinebot-demo.azurewebsites.net/linepay/qrcode',
                         altText: 'qrcode',
                         baseSize: {
                             height: 1040,
