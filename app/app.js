@@ -7,8 +7,12 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/../public'));
+const linepay_1 = require("./routers/linepay");
 const router_1 = require("./routers/router");
+const webhook_1 = require("./routers/webhook");
 app.use('/', router_1.default);
+app.use('/webhook', webhook_1.default);
+app.use('/linepay', linepay_1.default);
 app.use((req, res) => {
     const STATUS_CODE_NOT_FOUND = 404;
     res.status(STATUS_CODE_NOT_FOUND);

@@ -17,8 +17,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/../public'));
 
 // routers
+import linepayRouter from './routers/linepay';
 import router from './routers/router';
+import webhookRouter from './routers/webhook';
 app.use('/', router);
+app.use('/webhook', webhookRouter);
+app.use('/linepay', linepayRouter);
 
 // 404
 app.use((req, res) => {
