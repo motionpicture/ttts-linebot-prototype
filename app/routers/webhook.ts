@@ -301,7 +301,7 @@ async function pushPerformances(MID: string, day: string) {
                 amount: amount,
                 currency: 'JPY',
                 // mid: MID, // 含めるとpaymentUrl先でエラーになるかも？
-                confirmUrl: 'https://devssktslinebot-demo.azurewebsites.net/linepay/confirm?mid=' + MID + '&amount=' + amount,
+                confirmUrl: process.env.LINE_PAY_WEBHOOK_ENDPOINT + '/linepay/confirm?mid=' + MID + '&amount=' + amount,
                 // confirmUrlType: 'CLIENT',
                 confirmUrlType: 'SERVER',
                 cancelUrl: '',

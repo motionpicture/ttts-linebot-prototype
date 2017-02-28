@@ -255,7 +255,7 @@ function pushPerformances(MID, day) {
                     productImageUrl: performance.film_image,
                     amount: amount,
                     currency: 'JPY',
-                    confirmUrl: 'https://devssktslinebot-demo.azurewebsites.net/linepay/confirm?mid=' + MID + '&amount=' + amount,
+                    confirmUrl: process.env.LINE_PAY_WEBHOOK_ENDPOINT + '/linepay/confirm?mid=' + MID + '&amount=' + amount,
                     confirmUrlType: 'SERVER',
                     cancelUrl: '',
                     orderId: 'LINEPayOrder_' + Date.now(),

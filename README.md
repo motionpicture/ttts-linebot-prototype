@@ -50,6 +50,7 @@ set LINE_BOT_CHANNEL_ACCESS_TOKEN=**********
 set LINE_PAY_CHANNEL_ID=**********
 set LINE_PAY_CHANNEL_SECRET=**********
 set MP_API_ENDPOINT=**********
+set LINE_PAY_WEBHOOK_ENDPOINT=**********
 ```
 only on Aure WebApps
 ```shell

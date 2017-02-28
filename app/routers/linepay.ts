@@ -50,7 +50,7 @@ router.all('/confirm', async (req, res) => {
                     },
                     {
                         type: 'imagemap',
-                        baseUrl: 'https://devssktslinebot-demo.azurewebsites.net/linepay/qrcode',
+                        baseUrl: process.env.LINE_PAY_WEBHOOK_ENDPOINT + '/linepay/qrcode',
                         altText: 'qrcode',
                         baseSize: {
                             height: 1040,
