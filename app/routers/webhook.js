@@ -20,10 +20,25 @@ router.all('/', (req, res) => __awaiter(this, void 0, void 0, function* () {
         if (event) {
             switch (event.type) {
                 case 'message':
-                    webhookController.message(event);
+                    yield webhookController.message(event);
                     break;
                 case 'postback':
-                    webhookController.postback(event);
+                    yield webhookController.postback(event);
+                    break;
+                case 'follow':
+                    yield webhookController.follow(event);
+                    break;
+                case 'unfollow':
+                    yield webhookController.unfollow(event);
+                    break;
+                case 'join':
+                    yield webhookController.join(event);
+                    break;
+                case 'leave':
+                    yield webhookController.leave(event);
+                    break;
+                case 'beacon':
+                    yield webhookController.postback(event);
                     break;
                 default:
                     break;
@@ -33,7 +48,7 @@ router.all('/', (req, res) => __awaiter(this, void 0, void 0, function* () {
     catch (error) {
         console.error(error);
     }
-    res.status(HTTPStatus.NO_CONTENT).end();
+    res.status(HTTPStatus.OK).send('ok');
 }));
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = router;

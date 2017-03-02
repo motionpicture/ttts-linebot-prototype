@@ -14,9 +14,9 @@ describe('POST /webhook', () => {
     it('found', (done) => {
         supertest(app)
             .post('/webhook')
-            .expect(HTTPStatus.NO_CONTENT)
+            .expect(HTTPStatus.OK)
             .then((response) => {
-                assert.deepEqual(response.body, {});
+                assert.equal(response.text, 'ok');
                 done();
             }).catch((err) => {
                 done(err);

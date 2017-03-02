@@ -93,6 +93,41 @@ function postback(event) {
     });
 }
 exports.postback = postback;
+function follow(event) {
+    return __awaiter(this, void 0, void 0, function* () {
+        debug('event is', event);
+        return;
+    });
+}
+exports.follow = follow;
+function unfollow(event) {
+    return __awaiter(this, void 0, void 0, function* () {
+        debug('event is', event);
+        return;
+    });
+}
+exports.unfollow = unfollow;
+function join(event) {
+    return __awaiter(this, void 0, void 0, function* () {
+        debug('event is', event);
+        return;
+    });
+}
+exports.join = join;
+function leave(event) {
+    return __awaiter(this, void 0, void 0, function* () {
+        debug('event is', event);
+        return;
+    });
+}
+exports.leave = leave;
+function beacon(event) {
+    return __awaiter(this, void 0, void 0, function* () {
+        debug('event is', event);
+        return;
+    });
+}
+exports.beacon = beacon;
 function pushMessage(MID, text) {
     return __awaiter(this, void 0, void 0, function* () {
         yield request.post({

@@ -129,6 +129,46 @@ export async function postback(event: any) {
 }
 
 /**
+ * イベント送信元に友だち追加（またはブロック解除）されたことを示すEvent Objectです。
+ */
+export async function follow(event: any) {
+    debug('event is', event);
+    return;
+}
+
+/**
+ * イベント送信元にブロックされたことを示すevent objectです。
+ */
+export async function unfollow(event: any) {
+    debug('event is', event);
+    return;
+}
+
+/**
+ * イベントの送信元グループまたはトークルームに参加したことを示すevent objectです。
+ */
+export async function join(event: any) {
+    debug('event is', event);
+    return;
+}
+
+/**
+ * イベントの送信元グループから退出させられたことを示すevent objectです。
+ */
+export async function leave(event: any) {
+    debug('event is', event);
+    return;
+}
+
+/**
+ * イベント送信元のユーザがLINE Beaconデバイスの受信圏内に出入りしたことなどを表すイベントです。
+ */
+export async function beacon(event: any) {
+    debug('event is', event);
+    return;
+}
+
+/**
  * メッセージ送信
  *
  * @param {string} MID

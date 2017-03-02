@@ -22,11 +22,31 @@ router.all('/', async (req, res) => {
         if (event) {
             switch (event.type) {
                 case 'message':
-                    webhookController.message(event);
+                    await webhookController.message(event);
                     break;
 
                 case 'postback':
-                    webhookController.postback(event);
+                    await webhookController.postback(event);
+                    break;
+
+                case 'follow':
+                    await webhookController.follow(event);
+                    break;
+
+                case 'unfollow':
+                    await webhookController.unfollow(event);
+                    break;
+
+                case 'join':
+                    await webhookController.join(event);
+                    break;
+
+                case 'leave':
+                    await webhookController.leave(event);
+                    break;
+
+                case 'beacon':
+                    await webhookController.postback(event);
                     break;
 
                 default:
@@ -37,7 +57,7 @@ router.all('/', async (req, res) => {
         console.error(error);
     }
 
-    res.status(HTTPStatus.NO_CONTENT).end();
+    res.status(HTTPStatus.OK).send('ok');
 });
 
 export default router;
