@@ -9,6 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const createDebug = require("debug");
 const express = require("express");
+const HTTPStatus = require("http-status");
+const querystring = require("querystring");
 const request = require("request-promise-native");
 const router = express.Router();
 const debug = createDebug('sskts-linebot:*');
@@ -181,9 +183,9 @@ function pushNumber(MID) {
                                     text: '3枚'
                                 },
                                 {
-                                    type: 'message',
-                                    label: '4枚',
-                                    text: '4枚'
+                                    type: 'postback',
+                                    label: 'Add to cart',
+                                    data: 'action=selectNumber&number=4'
                                 }
                             ]
                         }
@@ -396,7 +398,17 @@ router.all('/', (req, res) => __awaiter(this, void 0, void 0, function* () {
                     }
                     break;
                 case 'postback':
-                    yield pushMessage(MID, event.postback.data);
+                    const data = querystring.parse(event.postback.data);
+                    debug('data is', data);
+                    switch (data.action) {
+                        case 'selectNumber':
+                            yield pushMessage(MID, 'おっけい！探してくるね～');
+                            yield pushPerformances(MID, '20171030');
+                            yield pushMessage(MID, '作品を選んだら決済画面に遷移するよ～');
+                            break;
+                        default:
+                            break;
+                    }
                     break;
                 default:
                     break;
@@ -406,7 +418,7 @@ router.all('/', (req, res) => __awaiter(this, void 0, void 0, function* () {
     catch (error) {
         console.error(error);
     }
-    res.send('ok');
+    res.status(HTTPStatus.NO_CONTENT).end();
 }));
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = router;

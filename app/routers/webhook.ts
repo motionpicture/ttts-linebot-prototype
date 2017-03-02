@@ -5,6 +5,8 @@
  */
 import * as createDebug from 'debug';
 import * as express from 'express';
+import * as HTTPStatus from 'http-status';
+import * as querystring from 'querystring';
 import * as request from 'request-promise-native';
 const router = express.Router();
 const debug = createDebug('sskts-linebot:*');
@@ -211,9 +213,9 @@ async function pushNumber(MID: string) {
                                 text: '3枚'
                             },
                             {
-                                type: 'message',
-                                label: '4枚',
-                                text: '4枚'
+                                type: 'postback',
+                                label: 'Add to cart',
+                                data: 'action=selectNumber&number=4'
                             }
                         ]
                     }
@@ -485,7 +487,21 @@ router.all('/', async (req, res) => {
                     break;
 
                 case 'postback':
-                    await pushMessage(MID, event.postback.data);
+                    const data = querystring.parse(event.postback.data);
+                    debug('data is', data);
+
+                    // 枚数選択
+                    switch (data.action) {
+                        case 'selectNumber':
+                            await pushMessage(MID, 'おっけい！探してくるね～');
+                            await pushPerformances(MID, '20171030');
+                            await pushMessage(MID, '作品を選んだら決済画面に遷移するよ～');
+
+                            break;
+
+                        default:
+                            break;
+                    }
 
                     break;
 
@@ -497,7 +513,7 @@ router.all('/', async (req, res) => {
         console.error(error);
     }
 
-    res.send('ok');
+    res.status(HTTPStatus.NO_CONTENT).end();
 });
 
 export default router;
