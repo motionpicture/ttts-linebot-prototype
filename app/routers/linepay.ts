@@ -57,7 +57,7 @@ router.all('/confirm', async (req, res) => {
                         actions: [
                             {
                                 type: 'message',
-                                text: '入場？？',
+                                text: 'QRコードの使い方',
                                 area: {
                                     x: 520,
                                     y: 0,

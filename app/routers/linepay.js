@@ -58,7 +58,7 @@ router.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, function* (
                         actions: [
                             {
                                 type: 'message',
-                                text: '入場？？',
+                                text: 'QRコードの使い方',
                                 area: {
                                     x: 520,
                                     y: 0,
