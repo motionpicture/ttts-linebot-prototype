@@ -390,7 +390,7 @@ function pushPerformances(MID, day) {
                 actions: [
                     {
                         type: 'uri',
-                        label: '座席予約',
+                        label: 'チケット購入',
                         uri: startLinePayResponse.info.paymentUrl.web
                     },
                     {
