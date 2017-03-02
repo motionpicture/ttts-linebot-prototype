@@ -66,7 +66,9 @@ npmでローカルサーバーを起動。
     set MP_API_ENDPOINT=**********
     set LINE_PAY_WEBHOOK_ENDPOINT=**********
 ```
+
 only on Aure WebApps
+
 ```shell
     set WEBSITE_NODE_DEFAULT_VERSION=**********
     set WEBSITE_TIME_ZONE=Tokyo Standard Time
