@@ -349,7 +349,6 @@ function pushPerformances(MID, day) {
                 day: day
             }
         });
-        debug('searchPerformancesResponse.results.length：' + searchPerformancesResponse.results.length);
         const MAX_COLUMNS = 3;
         const performances = searchPerformancesResponse.results.slice(0, Math.min(MAX_COLUMNS, searchPerformancesResponse.results.length));
         if (performances.length === 0) {
@@ -382,7 +381,6 @@ function pushPerformances(MID, day) {
             });
             if (startLinePayResponse.returnCode !== '0000')
                 return;
-            debug(startLinePayResponse.returnCode);
             columns.push({
                 thumbnailImageUrl: performance.film_image,
                 title: performance.film_name.substr(0, MAX_TITLE_LENGTH),

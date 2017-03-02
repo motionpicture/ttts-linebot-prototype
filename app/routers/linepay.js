@@ -32,10 +32,9 @@ router.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, function* (
             reply = '上映当日はこのQRコードをタップすると入場できるよ！';
         }
         else {
-            debug('confirmLinePayResponse.returnCode：' + confirmLinePayResponse.returnCode);
-            debug('confirmLinePayResponse.returnMessage' + confirmLinePayResponse.returnMessage);
             reply = '決済を完了できませんでした' + confirmLinePayResponse.returnMessage;
         }
+        reply += '\n\n日時：2017/3/4(土)\n枚数：2枚\n作品：アメリカから来たモーリス';
         yield request.post({
             simple: false,
             url: 'https://api.line.me/v2/bot/message/push',
@@ -68,6 +67,33 @@ router.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, function* (
                                 }
                             }
                         ]
+                    }
+                ]
+            }
+        });
+        yield request.post({
+            simple: false,
+            url: 'https://api.line.me/v2/bot/message/push',
+            auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
+            json: true,
+            body: {
+                to: req.query.mid,
+                messages: [
+                    {
+                        type: 'template',
+                        altText: '↓↓のボタンから作品の概要を調べてみよう！',
+                        template: {
+                            type: 'buttons',
+                            thumbnailImageUrl: 'https://devchevrefrontend.azurewebsites.net/images/film/000127.jpg',
+                            text: '↓↓のボタンから作品の概要を調べてみよう！',
+                            actions: [
+                                {
+                                    type: 'uri',
+                                    label: 'Webサイトに遷移',
+                                    uri: 'https://www.google.co.jp/?#q=' + encodeURIComponent('アメリカから来たモーリス')
+                                }
+                            ]
+                        }
                     }
                 ]
             }

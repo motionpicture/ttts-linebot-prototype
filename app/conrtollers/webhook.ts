@@ -433,7 +433,7 @@ async function pushPerformances(MID: string, day: string) {
             day: day
         }
     });
-    debug('searchPerformancesResponse.results.length：' + searchPerformancesResponse.results.length);
+
     const MAX_COLUMNS = 3;
     const performances: any[] =
         searchPerformancesResponse.results.slice(0, Math.min(MAX_COLUMNS, searchPerformancesResponse.results.length));
@@ -472,7 +472,6 @@ async function pushPerformances(MID: string, day: string) {
         });
 
         if (startLinePayResponse.returnCode !== '0000') return;
-        debug(startLinePayResponse.returnCode);
         columns.push({
             thumbnailImageUrl: performance.film_image,
             title: performance.film_name.substr(0, MAX_TITLE_LENGTH),
