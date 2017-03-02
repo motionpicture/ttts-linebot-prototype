@@ -21,50 +21,58 @@ LINE Messaging APIは、トークやアカウントに関するイベントに�
 
 ## 開発方法
 npmでパッケージをインストール。
-```shell
-npm install
-```
+`npm install`
+
 * npm(https://www.npmjs.com/)
 
 typescriptをjavascriptにコンパイル。
-```shell
-npm run tsc
-```
+`npm run build`
+
+
+監視させる場合はこちら。
+`npm run build -- -w`
+
 
 npmでローカルサーバーを起動。
-```shell
-npm start
-```
+`npm start`
+
 (http://localhost:8080)にアクセスすると、ローカルでウェブアプリを確認できます。
 
 以下指定するとデバッグモード。
-```shell
-set DEBUG=sskts-linebot:*
-```
-
-## Required environment variables
-```shell
-set NODE_ENV=**********
-set LINE_BOT_CHANNEL_SECRET=**********
-set LINE_BOT_CHANNEL_ACCESS_TOKEN=**********
-set LINE_PAY_CHANNEL_ID=**********
-set LINE_PAY_CHANNEL_SECRET=**********
-set MP_API_ENDPOINT=**********
-set LINE_PAY_WEBHOOK_ENDPOINT=**********
-```
-only on Aure WebApps
-```shell
-set WEBSITE_NODE_DEFAULT_VERSION=**********
-set WEBSITE_TIME_ZONE=Tokyo Standard Time
-```
+`set DEBUG=sskts-linebot:*`
 
 
-# tslint
+### tslint
 
 コード品質チェックをtslintで行う。
 * [tslint](https://github.com/palantir/tslint)
 * [tslint-microsoft-contrib](https://github.com/Microsoft/tslint-microsoft-contrib)
-`npm run tslint`でチェック実行。改修の際には、必ずチェックする。
+`npm run check`でチェック実行。改修の際には、必ずチェックする。
+
+
+### test
+
+`npm test`でテストコード実行。テストをクリアしてからデプロイすること。
+
+
+
+## Required environment variables
+```shell
+    set NODE_ENV=**********
+    set LINE_BOT_CHANNEL_SECRET=**********
+    set LINE_BOT_CHANNEL_ACCESS_TOKEN=**********
+    set LINE_PAY_CHANNEL_ID=**********
+    set LINE_PAY_CHANNEL_SECRET=**********
+    set MP_API_ENDPOINT=**********
+    set LINE_PAY_WEBHOOK_ENDPOINT=**********
+```
+only on Aure WebApps
+```shell
+    set WEBSITE_NODE_DEFAULT_VERSION=**********
+    set WEBSITE_TIME_ZONE=Tokyo Standard Time
+```
+
+
 
 
 # JsDoc
