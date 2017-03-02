@@ -168,23 +168,23 @@ function pushNumber(MID) {
                             text: '4枚まで買えるよ～',
                             actions: [
                                 {
-                                    type: 'message',
+                                    type: 'postback',
                                     label: '1枚',
-                                    text: '1枚'
-                                },
-                                {
-                                    type: 'message',
-                                    label: '2枚',
-                                    text: '2枚'
-                                },
-                                {
-                                    type: 'message',
-                                    label: '3枚',
-                                    text: '3枚'
+                                    data: 'action=selectNumber&number=1'
                                 },
                                 {
                                     type: 'postback',
-                                    label: 'Add to cart',
+                                    label: '2枚',
+                                    data: 'action=selectNumber&number=2'
+                                },
+                                {
+                                    type: 'postback',
+                                    label: '3枚',
+                                    data: 'action=selectNumber&number=3'
+                                },
+                                {
+                                    type: 'postback',
+                                    label: '4枚',
                                     data: 'action=selectNumber&number=4'
                                 }
                             ]
@@ -364,26 +364,6 @@ router.all('/', (req, res) => __awaiter(this, void 0, void 0, function* () {
                             break;
                         case /^\d{4}\/\d{2}\/\d{2}$/.test(message):
                             yield pushPerformances(MID, `${message.substr(0, 4)}${message.substr(5, 2)}${message.substr(8, 2)}`);
-                            break;
-                        case /^1枚$/.test(message):
-                            yield pushMessage(MID, 'おっけい！探してくるね～');
-                            yield pushPerformances(MID, '20171030');
-                            yield pushMessage(MID, '作品を選んだら決済画面に遷移するよ～');
-                            break;
-                        case /^2枚$/.test(message):
-                            yield pushMessage(MID, 'おっけい！探してくるね～');
-                            yield pushPerformances(MID, '20171030');
-                            yield pushMessage(MID, '作品を選んだら決済画面に遷移するよ～');
-                            break;
-                        case /^3枚$/.test(message):
-                            yield pushMessage(MID, 'おっけい！探してくるね～');
-                            yield pushPerformances(MID, '20171030');
-                            yield pushMessage(MID, '作品を選んだら決済画面に遷移するよ～');
-                            break;
-                        case /^4枚$/.test(message):
-                            yield pushMessage(MID, 'おっけい！探してくるね～');
-                            yield pushPerformances(MID, '20171030');
-                            yield pushMessage(MID, '作品を選んだら決済画面に遷移するよ～');
                             break;
                         default:
                             const translatorTextResult = yield getTranslatorText(message);
