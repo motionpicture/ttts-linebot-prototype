@@ -370,7 +370,7 @@ function pushNumber(MID) {
                         altText: 'aaa',
                         template: {
                             type: 'buttons',
-                            thumbnailImageUrl: 'https://devssktslinebotdemo.blob.core.windows.net/image/tokyo.PNG',
+                            thumbnailImageUrl: `${process.env.LINE_PAY_WEBHOOK_ENDPOINT}/images/tokyo.png`,
                             text: '4枚まで買えるよ～',
                             actions: [
                                 {
@@ -422,7 +422,7 @@ function pushCoupon(MID) {
                         altText: 'aaa',
                         template: {
                             type: 'buttons',
-                            thumbnailImageUrl: 'https://devssktslinebotdemo.blob.core.windows.net/image/tokyo.PNG',
+                            thumbnailImageUrl: `${process.env.LINE_PAY_WEBHOOK_ENDPOINT}/images/tokyo.png`,
                             text: '【LINE@友達限定】のっぽんアクセサリーをプレゼント♪',
                             actions: [
                                 {
