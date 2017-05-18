@@ -18,13 +18,13 @@ const express = require("express");
 const fs = require("fs-extra");
 const request = require("request-promise-native");
 const linepayRouter = express.Router();
-const debug = createDebug('sskts-linebot:*');
+const debug = createDebug('ttts-linebot-prototype:*');
 linepayRouter.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, function* () {
     let reply = '';
     debug(req.query);
     try {
         const confirmLinePayResponse = yield request.post({
-            url: 'https://sandbox-api-pay.line.me/v2/payments/' + req.query.transactionId + '/confirm',
+            url: `https://sandbox-api-pay.line.me/v2/payments/${req.query.transactionId}/confirm`,
             headers: {
                 'X-LINE-ChannelId': process.env.LINE_PAY_CHANNEL_ID,
                 'X-LINE-ChannelSecret': process.env.LINE_PAY_CHANNEL_SECRET
@@ -38,7 +38,7 @@ linepayRouter.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, func
             reply = '上映当日はこのQRコードをタップすると入場できるよ！';
         }
         else {
-            reply = '決済を完了できませんでした' + confirmLinePayResponse.returnMessage;
+            reply = `決済を完了できませんでした${confirmLinePayResponse.returnMessage}`;
         }
         reply += '\n\n日時：2017/3/4(土)\n枚数：2枚\n作品：アメリカから来たモーリス';
         // push message
@@ -56,7 +56,7 @@ linepayRouter.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, func
                     },
                     {
                         type: 'imagemap',
-                        baseUrl: process.env.LINE_PAY_WEBHOOK_ENDPOINT + '/linepay/qrcode',
+                        baseUrl: `${process.env.LINE_PAY_WEBHOOK_ENDPOINT}/linepay/qrcode`,
                         altText: 'qrcode',
                         baseSize: {
                             height: 1040,
@@ -114,7 +114,7 @@ linepayRouter.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, func
 // tslint:disable-next-line:variable-name
 linepayRouter.get('/qrcode/:width', (__, res, next) => {
     fs.readFile(`${__dirname}/../../public/images/qrcode.png`, (err, data) => {
-        if (err) {
+        if (err instanceof Error) {
             next(err);
             return;
         }

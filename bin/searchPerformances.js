@@ -13,22 +13,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const createDebug = require("debug");
 const request = require("request-promise-native");
-const debug = createDebug('sskts-linebot:*');
+const debug = createDebug('ttts-linebot-prototype:*');
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield request.get({
-            url: process.env.MP_API_ENDPOINT + '/ja/performance/search',
+            url: `${process.env.MP_API_ENDPOINT}/ja/performance/search`,
             json: true,
             qs: {
                 day: '20171025'
             }
-        });
+        }).promise();
         debug(response.results);
     });
 }
-try {
-    main();
-}
-catch (error) {
+// tslint:disable-next-line:no-floating-promises
+main().then(() => {
+    debug('success!');
+}).catch((error) => {
     console.error(error);
-}
+});

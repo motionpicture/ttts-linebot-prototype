@@ -8,7 +8,7 @@ import * as express from 'express';
 import * as fs from 'fs-extra';
 import * as request from 'request-promise-native';
 const linepayRouter = express.Router();
-const debug = createDebug('sskts-linebot:*');
+const debug = createDebug('ttts-linebot-prototype:*');
 
 linepayRouter.all('/confirm', async (req, res) => {
     let reply = '';
@@ -16,7 +16,7 @@ linepayRouter.all('/confirm', async (req, res) => {
 
     try {
         const confirmLinePayResponse = await request.post({
-            url: 'https://sandbox-api-pay.line.me/v2/payments/' + req.query.transactionId + '/confirm',
+            url: `https://sandbox-api-pay.line.me/v2/payments/${req.query.transactionId}/confirm`,
             headers: {
                 'X-LINE-ChannelId': process.env.LINE_PAY_CHANNEL_ID,
                 'X-LINE-ChannelSecret': process.env.LINE_PAY_CHANNEL_SECRET
@@ -30,7 +30,7 @@ linepayRouter.all('/confirm', async (req, res) => {
         if (confirmLinePayResponse.returnCode === '0000') {
             reply = '上映当日はこのQRコードをタップすると入場できるよ！';
         } else {
-            reply = '決済を完了できませんでした' + confirmLinePayResponse.returnMessage;
+            reply = `決済を完了できませんでした${confirmLinePayResponse.returnMessage}`;
         }
         reply += '\n\n日時：2017/3/4(土)\n枚数：2枚\n作品：アメリカから来たモーリス';
         // push message
@@ -48,7 +48,7 @@ linepayRouter.all('/confirm', async (req, res) => {
                     },
                     {
                         type: 'imagemap',
-                        baseUrl: process.env.LINE_PAY_WEBHOOK_ENDPOINT + '/linepay/qrcode',
+                        baseUrl: `${process.env.LINE_PAY_WEBHOOK_ENDPOINT}/linepay/qrcode`,
                         altText: 'qrcode',
                         baseSize: {
                             height: 1040,
@@ -108,7 +108,7 @@ linepayRouter.all('/confirm', async (req, res) => {
 // tslint:disable-next-line:variable-name
 linepayRouter.get('/qrcode/:width', (__, res, next) => {
     fs.readFile(`${__dirname}/../../public/images/qrcode.png`, (err, data) => {
-        if (err) {
+        if (err instanceof Error) {
             next(err);
 
             return;

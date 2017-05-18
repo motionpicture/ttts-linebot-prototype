@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 const createDebug = require("debug");
 const request = require("request");
-const debug = createDebug('sskts-linebot:*');
+const debug = createDebug('ttts-linebot-prototype:*');
 request.post('https://api.line.me/v2/bot/message/multicast', {
     auth: { bearer: process.env.LINE_BOT_CHANNEL_ACCESS_TOKEN },
     json: true,

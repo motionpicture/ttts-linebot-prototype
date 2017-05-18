@@ -4,7 +4,7 @@
 import * as createDebug from 'debug';
 import * as request from 'request';
 
-const debug = createDebug('sskts-linebot:*');
+const debug = createDebug('ttts-linebot-prototype:*');
 
 request.post(
     'https://westus.api.cognitive.microsoft.com/text/weblm/v1.0/generateNextWords',

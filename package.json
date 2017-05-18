@@ -22,7 +22,7 @@
     "request": "^2.81.0",
     "request-promise-native": "^1.0.4"
   },
-  "description": "SSK Line Bot web app.",
+  "description": "ttts LINE BOT prototype",
   "devDependencies": {
     "@types/body-parser": "^1.16.3",
     "@types/debug": "0.0.29",
@@ -49,7 +49,7 @@
   },
   "keywords": [],
   "license": "UNLICENSED",
-  "name": "sskts-linebot",
+  "name": "ttts-linebot-prototype",
   "private": true,
   "repository": {},
   "scripts": {
@@ -65,5 +65,5 @@
     "version": "git add -A",
     "postversion": "git push origin --tags"
   },
-  "version": "1.0.7"
+  "version": "1.0.8"
 }

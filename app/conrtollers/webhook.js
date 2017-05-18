@@ -14,7 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const createDebug = require("debug");
 const querystring = require("querystring");
 const request = require("request-promise-native");
-const debug = createDebug('sskts-linebot:controller:webhook');
+const debug = createDebug('ttts-linebot-prototype:controller:webhook');
 /**
  * メッセージが送信されたことを示すEvent Objectです。
  */
@@ -230,8 +230,8 @@ function getTranslatorText(text) {
         debug('getTranslatorText text：', text);
         const getTranslatorResult = yield request.get({
             simple: false,
-            url: 'https://api.microsofttranslator.com/v2/http.svc/Translate?appid=Bearer ' +
-                transelatorTokenResult + '&text=' + encodeURIComponent(text) + '&from=ja&to=en'
+            // tslint:disable-next-line:max-line-length
+            url: `https://api.microsofttranslator.com/v2/http.svc/Translate?appid=Bearer ${transelatorTokenResult}&text=${encodeURIComponent(text)}&from=ja&to=en`
         }).promise();
         debug('getTranslatorText getTranslatorResult：', getTranslatorResult.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, ''));
         return getTranslatorResult.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, '');
@@ -256,7 +256,7 @@ function getQnAText(text) {
                 question: text
             }
         }).promise();
-        debug('getQnATextResult：' + JSON.stringify(getQnATextResult));
+        debug('getQnATextResult：', JSON.stringify(getQnATextResult));
         return JSON.stringify(getQnATextResult);
     });
 }
@@ -482,7 +482,7 @@ function pushPerformances(MID, day) {
                     // confirmUrlType: 'CLIENT',
                     confirmUrlType: 'SERVER',
                     cancelUrl: '',
-                    orderId: 'LINEPayOrder_' + Date.now().toString(),
+                    orderId: `LINEPayOrder_${Date.now().toString()}`,
                     payType: 'NORMAL',
                     langCd: 'ja',
                     capture: false // 売上処理
@@ -505,7 +505,7 @@ function pushPerformances(MID, day) {
                     {
                         type: 'uri',
                         label: '作品詳細',
-                        uri: 'https://www.google.co.jp/?#q=' + encodeURIComponent(performance.attributes.film_name)
+                        uri: `https://www.google.co.jp/?#q=${encodeURIComponent(performance.attributes.film_name)}`
                     }
                 ]
             });

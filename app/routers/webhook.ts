@@ -10,7 +10,7 @@ import * as HTTPStatus from 'http-status';
 import * as webhookController from '../conrtollers/webhook';
 
 const webhookRouter = express.Router();
-const debug = createDebug('sskts-linebot:*');
+const debug = createDebug('ttts-linebot-prototype:*');
 
 // tslint:disable-next-line:max-func-body-length
 webhookRouter.all('/', async (req, res) => {

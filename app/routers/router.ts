@@ -6,7 +6,7 @@
 import * as createDebug from 'debug';
 import * as express from 'express';
 const router = express.Router();
-const debug = createDebug('sskts-linebot:*');
+const debug = createDebug('ttts-linebot-prototype:*');
 
 // middleware that is specific to this router
 // router.use((req, res, next) => {

@@ -6,7 +6,7 @@ import * as createDebug from 'debug';
 import * as querystring from 'querystring';
 import * as request from 'request-promise-native';
 
-const debug = createDebug('sskts-linebot:controller:webhook');
+const debug = createDebug('ttts-linebot-prototype:controller:webhook');
 
 /**
  * メッセージが送信されたことを示すEvent Objectです。
@@ -218,8 +218,8 @@ async function getTranslatorText(text: string) {
     debug('getTranslatorText text：', text);
     const getTranslatorResult = await request.get({
         simple: false,
-        url: 'https://api.microsofttranslator.com/v2/http.svc/Translate?appid=Bearer ' +
-        transelatorTokenResult + '&text=' + encodeURIComponent(text) + '&from=ja&to=en'
+        // tslint:disable-next-line:max-line-length
+        url: `https://api.microsofttranslator.com/v2/http.svc/Translate?appid=Bearer ${transelatorTokenResult}&text=${encodeURIComponent(text)}&from=ja&to=en`
     }).promise();
     debug('getTranslatorText getTranslatorResult：', getTranslatorResult.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, ''));
 
@@ -244,7 +244,7 @@ async function getQnAText(text: string) {
             question: text
         }
     }).promise();
-    debug('getQnATextResult：' + JSON.stringify(getQnATextResult));
+    debug('getQnATextResult：', JSON.stringify(getQnATextResult));
 
     return JSON.stringify(getQnATextResult);
 }
@@ -471,7 +471,7 @@ async function pushPerformances(MID: string, day: string) {
                 // confirmUrlType: 'CLIENT',
                 confirmUrlType: 'SERVER',
                 cancelUrl: '',
-                orderId: 'LINEPayOrder_' + Date.now().toString(),
+                orderId: `LINEPayOrder_${Date.now().toString()}`,
                 payType: 'NORMAL', // 一般決済
                 langCd: 'ja', // 決済待ち画面(paymentUrl)言語コード。6 種の言語に対応。
                 capture: false // 売上処理
@@ -497,7 +497,7 @@ async function pushPerformances(MID: string, day: string) {
                 {
                     type: 'uri',
                     label: '作品詳細',
-                    uri: 'https://www.google.co.jp/?#q=' + encodeURIComponent(performance.attributes.film_name)
+                    uri: `https://www.google.co.jp/?#q=${encodeURIComponent(performance.attributes.film_name)}`
                 }
             ]
         });

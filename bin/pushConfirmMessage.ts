@@ -4,7 +4,7 @@
 import * as createDebug from 'debug';
 import * as request from 'request';
 
-const debug = createDebug('sskts-linebot:*');
+const debug = createDebug('ttts-linebot-prototype:*');
 
 request.post(
     'https://api.line.me/v2/bot/message/multicast',

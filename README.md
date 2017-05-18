@@ -39,7 +39,7 @@ npmでローカルサーバーを起動。
 (http://localhost:8080)にアクセスすると、ローカルでウェブアプリを確認できます。
 
 以下指定するとデバッグモード。
-`set DEBUG=sskts-linebot:*`
+`set DEBUG=ttts-linebot-prototype:*`
 
 
 ### tslint

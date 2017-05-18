@@ -8,7 +8,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const createDebug = require("debug");
 const express = require("express");
 const router = express.Router();
-const debug = createDebug('sskts-linebot:*');
+const debug = createDebug('ttts-linebot-prototype:*');
 // middleware that is specific to this router
 // router.use((req, res, next) => {
 //   debug('Time: ', Date.now())
