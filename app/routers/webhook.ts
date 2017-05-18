@@ -9,17 +9,17 @@ import * as HTTPStatus from 'http-status';
 
 import * as webhookController from '../conrtollers/webhook';
 
-const router = express.Router();
+const webhookRouter = express.Router();
 const debug = createDebug('sskts-linebot:*');
 
 // tslint:disable-next-line:max-func-body-length
-router.all('/', async (req, res) => {
+webhookRouter.all('/', async (req, res) => {
     debug('body:', JSON.stringify(req.body));
 
     try {
-        const event: any = (req.body.events) ? req.body.events[0] : undefined;
+        const event: any = (Array.isArray(req.body.events)) ? req.body.events[0] : undefined;
 
-        if (event) {
+        if (event !== undefined) {
             switch (event.type) {
                 case 'message':
                     await webhookController.message(event);
@@ -60,4 +60,4 @@ router.all('/', async (req, res) => {
     res.status(HTTPStatus.OK).send('ok');
 });
 
-export default router;
+export default webhookRouter;

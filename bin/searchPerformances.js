@@ -7,6 +7,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * パフォーマンスを検索する
+ */
 const createDebug = require("debug");
 const request = require("request-promise-native");
 const debug = createDebug('sskts-linebot:*');

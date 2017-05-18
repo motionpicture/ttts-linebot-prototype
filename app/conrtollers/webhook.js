@@ -1,4 +1,7 @@
 "use strict";
+/**
+ * LINE webhookコントローラ
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -7,15 +10,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 const createDebug = require("debug");
 const querystring = require("querystring");
 const request = require("request-promise-native");
 const debug = createDebug('sskts-linebot:controller:webhook');
+/**
+ * メッセージが送信されたことを示すEvent Objectです。
+ */
 function message(event) {
     return __awaiter(this, void 0, void 0, function* () {
         const message = event.message.text;
         const MID = event.source.userId;
         switch (true) {
+            // ファーストアクション
             case /^予約$/.test(message):
                 yield pushDate(MID);
                 break;
@@ -34,6 +42,7 @@ function message(event) {
             case /^ヘルプ$/.test(message):
                 yield pushFirstChoice(MID);
                 break;
+            // 質問
             case /^質問$/.test(message):
                 yield pushMessage(MID, '何か聞きたいのかな？？');
                 break;
@@ -43,6 +52,7 @@ function message(event) {
             case /^クーポン$/.test(message):
                 yield pushCoupon(MID);
                 break;
+            // 日付の選択後
             case /^今日$/.test(message):
                 yield pushMessage(MID, '今日だね！');
                 yield pushMessage(MID, '何枚欲しい？');
@@ -56,17 +66,44 @@ function message(event) {
             case /^その他$/.test(message):
                 yield pushMessage(MID, 'じゃあいつにする？？');
                 break;
+            // 日付への返答
             case /^\d{8}$/.test(message):
                 yield pushPerformances(MID, message);
                 break;
+            // 日付(YYYY/MM/DD)
             case /^\d{4}\/\d{2}\/\d{2}$/.test(message):
+                // tslint:disable-next-line:no-magic-numbers
                 yield pushPerformances(MID, `${message.substr(0, 4)}${message.substr(5, 2)}${message.substr(8, 2)}`);
                 break;
             default:
+                // QnA Maker 呼び出し
+                /*const generateNextWordsResult = await request.post({
+                    simple: false,
+                    url: 'https://westus.api.cognitive.microsoft.com/text/weblm/v1.0/generateNextWords',
+                    headers: {
+                        'Ocp-Apim-Subscription-Key': 'ecdeb8bb4a5f481ab42e2ff2b765c962'
+                    },
+                    json: true,
+                    qs: {
+                        model: 'query',
+                        words: message
+                    },
+                    useQuerystring: true
+                });
+    
+                debug(generateNextWordsResult);
+                const candidates: any[] = generateNextWordsResult.candidates;
+                if (candidates.length > 0) {
+                    reply = candidates[0].word;
+                }
+    
+                await pushMessage(MID, reply);*/
+                // Translate API
                 const translatorTextResult = yield getTranslatorText(message);
+                // QnA Maker API Call
                 const qnaResult = yield getQnAText(translatorTextResult);
                 let qnAReturn = JSON.parse(qnaResult).answer;
-                debug('answer：' + qnAReturn);
+                debug('answer：', qnAReturn);
                 if (qnAReturn === 'No good match found in the KB') {
                     qnAReturn = 'ちょっと分からない内容だなぁ。。ホームページ見てみて！https://www.tokyotower.co.jp/index.html';
                 }
@@ -76,11 +113,15 @@ function message(event) {
     });
 }
 exports.message = message;
+/**
+ * イベントの送信元が、template messageに付加されたポストバックアクションを実行したことを示すevent objectです。
+ */
 function postback(event) {
     return __awaiter(this, void 0, void 0, function* () {
         const data = querystring.parse(event.postback.data);
         debug('data is', data);
         const MID = event.source.userId;
+        // 枚数選択
         switch (data.action) {
             case 'selectNumber':
                 yield pushMessage(MID, 'おっけい！探してくるね～');
@@ -93,6 +134,9 @@ function postback(event) {
     });
 }
 exports.postback = postback;
+/**
+ * イベント送信元に友だち追加（またはブロック解除）されたことを示すEvent Objectです。
+ */
 function follow(event) {
     return __awaiter(this, void 0, void 0, function* () {
         debug('event is', event);
@@ -100,6 +144,9 @@ function follow(event) {
     });
 }
 exports.follow = follow;
+/**
+ * イベント送信元にブロックされたことを示すevent objectです。
+ */
 function unfollow(event) {
     return __awaiter(this, void 0, void 0, function* () {
         debug('event is', event);
@@ -107,6 +154,9 @@ function unfollow(event) {
     });
 }
 exports.unfollow = unfollow;
+/**
+ * イベントの送信元グループまたはトークルームに参加したことを示すevent objectです。
+ */
 function join(event) {
     return __awaiter(this, void 0, void 0, function* () {
         debug('event is', event);
@@ -114,6 +164,9 @@ function join(event) {
     });
 }
 exports.join = join;
+/**
+ * イベントの送信元グループから退出させられたことを示すevent objectです。
+ */
 function leave(event) {
     return __awaiter(this, void 0, void 0, function* () {
         debug('event is', event);
@@ -121,6 +174,9 @@ function leave(event) {
     });
 }
 exports.leave = leave;
+/**
+ * イベント送信元のユーザがLINE Beaconデバイスの受信圏内に出入りしたことなどを表すイベントです。
+ */
 function beacon(event) {
     return __awaiter(this, void 0, void 0, function* () {
         debug('event is', event);
@@ -128,8 +184,15 @@ function beacon(event) {
     });
 }
 exports.beacon = beacon;
+/**
+ * メッセージ送信
+ *
+ * @param {string} MID
+ * @param {string} text
+ */
 function pushMessage(MID, text) {
     return __awaiter(this, void 0, void 0, function* () {
+        // push message
         yield request.post({
             simple: false,
             url: 'https://api.line.me/v2/bot/message/push',
@@ -144,11 +207,16 @@ function pushMessage(MID, text) {
                     }
                 ]
             }
-        });
+        }).promise();
     });
 }
+/**
+ * Azure Translator API呼び出し
+ *
+ */
 function getTranslatorText(text) {
     return __awaiter(this, void 0, void 0, function* () {
+        // Azure Translator Get Token
         const transelatorTokenResult = yield request.post({
             simple: false,
             url: 'https://api.cognitive.microsoft.com/sts/v1.0/issueToken',
@@ -157,19 +225,25 @@ function getTranslatorText(text) {
                 'Content-Type': 'application/json'
             },
             json: true
-        });
-        debug('getTranslatorText text：' + text);
+        }).promise();
+        // Azure Translator Executing Transfer
+        debug('getTranslatorText text：', text);
         const getTranslatorResult = yield request.get({
             simple: false,
             url: 'https://api.microsofttranslator.com/v2/http.svc/Translate?appid=Bearer ' +
                 transelatorTokenResult + '&text=' + encodeURIComponent(text) + '&from=ja&to=en'
-        });
-        debug('getTranslatorText getTranslatorResult：' + getTranslatorResult.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, ''));
+        }).promise();
+        debug('getTranslatorText getTranslatorResult：', getTranslatorResult.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, ''));
         return getTranslatorResult.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, '');
     });
 }
+/**
+ * QnA Maker API呼び出し
+ *
+ */
 function getQnAText(text) {
     return __awaiter(this, void 0, void 0, function* () {
+        // getQnAText
         const getQnATextResult = yield request.post({
             simple: false,
             url: 'https://westus.api.cognitive.microsoft.com/qnamaker/v1.0/knowledgebases/8564d98a-7bf6-4a1d-9e02-6bca84592264/generateAnswer',
@@ -181,13 +255,19 @@ function getQnAText(text) {
             body: {
                 question: text
             }
-        });
+        }).promise();
         debug('getQnATextResult：' + JSON.stringify(getQnATextResult));
         return JSON.stringify(getQnATextResult);
     });
 }
+/**
+ * 日程候補送信
+ *
+ * @param {string} MID
+ */
 function pushFirstChoice(MID) {
     return __awaiter(this, void 0, void 0, function* () {
+        // push message
         yield request.post({
             simple: false,
             url: 'https://api.line.me/v2/bot/message/push',
@@ -219,11 +299,17 @@ function pushFirstChoice(MID) {
                     }
                 ]
             }
-        });
+        }).promise();
     });
 }
+/**
+ * 日程候補送信
+ *
+ * @param {string} MID
+ */
 function pushDate(MID) {
     return __awaiter(this, void 0, void 0, function* () {
+        // push message
         yield request.post({
             simple: false,
             url: 'https://api.line.me/v2/bot/message/push',
@@ -260,11 +346,17 @@ function pushDate(MID) {
                     }
                 ]
             }
-        });
+        }).promise();
     });
 }
+/**
+ * 枚数選択送信
+ *
+ * @param {string} MID
+ */
 function pushNumber(MID) {
     return __awaiter(this, void 0, void 0, function* () {
+        // push message
         yield request.post({
             simple: false,
             url: 'https://api.line.me/v2/bot/message/push',
@@ -306,11 +398,17 @@ function pushNumber(MID) {
                     }
                 ]
             }
-        });
+        }).promise();
     });
 }
+/**
+ * クーポン送信
+ *
+ * @param {string} MID
+ */
 function pushCoupon(MID) {
     return __awaiter(this, void 0, void 0, function* () {
+        // pushCoupon
         yield request.post({
             simple: false,
             url: 'https://api.line.me/v2/bot/message/push',
@@ -337,20 +435,28 @@ function pushCoupon(MID) {
                     }
                 ]
             }
-        });
+        }).promise();
     });
 }
+/**
+ * パフォーマンスリスト送信
+ *
+ * @param {string} MID
+ * @param {string} day
+ */
 function pushPerformances(MID, day) {
     return __awaiter(this, void 0, void 0, function* () {
+        // パフォーマンス検索
         const searchPerformancesResponse = yield request.get({
-            url: process.env.MP_API_ENDPOINT + '/ja/performance/search',
+            url: `${process.env.MP_API_ENDPOINT}/ja/performance/search`,
             json: true,
             qs: {
                 day: day
             }
-        });
+        }).promise();
+        debug('searchPerformancesResponse:', searchPerformancesResponse);
         const MAX_COLUMNS = 3;
-        const performances = searchPerformancesResponse.results.slice(0, Math.min(MAX_COLUMNS, searchPerformancesResponse.results.length));
+        const performances = searchPerformancesResponse.data.slice(0, Math.min(MAX_COLUMNS, searchPerformancesResponse.data.length));
         if (performances.length === 0) {
             yield pushMessage(MID, 'その日はチケット売ってないな～。他の日を入力してみて！！');
             return;
@@ -359,6 +465,7 @@ function pushPerformances(MID, day) {
         const MAX_TITLE_LENGTH = 30;
         const promises = performances.map((performance) => __awaiter(this, void 0, void 0, function* () {
             const amount = 1500;
+            // LINE Pay開始
             const startLinePayResponse = yield request.post({
                 url: 'https://sandbox-api-pay.line.me/v2/payments/request',
                 headers: {
@@ -366,25 +473,29 @@ function pushPerformances(MID, day) {
                     'X-LINE-ChannelSecret': process.env.LINE_PAY_CHANNEL_SECRET
                 },
                 json: {
-                    productName: performance.film_name,
-                    productImageUrl: performance.film_image,
+                    productName: performance.attributes.film_name,
+                    productImageUrl: performance.attributes.film_image,
                     amount: amount,
                     currency: 'JPY',
-                    confirmUrl: process.env.LINE_PAY_WEBHOOK_ENDPOINT + '/linepay/confirm?mid=' + MID + '&amount=' + amount,
+                    // mid: MID, // 含めるとpaymentUrl先でエラーになるかも？
+                    confirmUrl: `${process.env.LINE_PAY_WEBHOOK_ENDPOINT}/linepay/confirm?mid=${MID}&amount=${amount}`,
+                    // confirmUrlType: 'CLIENT',
                     confirmUrlType: 'SERVER',
                     cancelUrl: '',
-                    orderId: 'LINEPayOrder_' + Date.now(),
+                    orderId: 'LINEPayOrder_' + Date.now().toString(),
                     payType: 'NORMAL',
                     langCd: 'ja',
-                    capture: false
+                    capture: false // 売上処理
                 }
-            });
-            if (startLinePayResponse.returnCode !== '0000')
+            }).promise();
+            debug('startLinePayResponse:', startLinePayResponse);
+            if (startLinePayResponse.returnCode !== '0000') {
                 return;
+            }
             columns.push({
-                thumbnailImageUrl: performance.film_image,
-                title: performance.film_name.substr(0, MAX_TITLE_LENGTH),
-                text: performance.theater_name,
+                thumbnailImageUrl: performance.attributes.film_image,
+                title: performance.attributes.film_name.substr(0, MAX_TITLE_LENGTH),
+                text: performance.attributes.theater_name,
                 actions: [
                     {
                         type: 'uri',
@@ -394,12 +505,13 @@ function pushPerformances(MID, day) {
                     {
                         type: 'uri',
                         label: '作品詳細',
-                        uri: 'https://www.google.co.jp/?#q=' + encodeURIComponent(performance.film_name)
+                        uri: 'https://www.google.co.jp/?#q=' + encodeURIComponent(performance.attributes.film_name)
                     }
                 ]
             });
         }));
         yield Promise.all(promises);
+        // push message
         yield request.post({
             simple: false,
             url: 'https://api.line.me/v2/bot/message/push',
@@ -418,6 +530,6 @@ function pushPerformances(MID, day) {
                     }
                 ]
             }
-        });
+        }).promise();
     });
 }

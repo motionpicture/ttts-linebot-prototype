@@ -1,4 +1,8 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * cognitive serviceでnext wordsを検索する
+ */
 const createDebug = require("debug");
 const request = require("request");
 const debug = createDebug('sskts-linebot:*');

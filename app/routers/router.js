@@ -1,8 +1,19 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * ルーター
+ *
+ * @ignore
+ */
 const createDebug = require("debug");
 const express = require("express");
 const router = express.Router();
 const debug = createDebug('sskts-linebot:*');
+// middleware that is specific to this router
+// router.use((req, res, next) => {
+//   debug('Time: ', Date.now())
+//   next()
+// })
 router.get('/environmentVariables', (req, res) => {
     debug('ip:', req.ip);
     res.json({
@@ -12,5 +23,4 @@ router.get('/environmentVariables', (req, res) => {
         }
     });
 });
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = router;

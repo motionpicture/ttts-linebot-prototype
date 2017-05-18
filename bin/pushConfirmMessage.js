@@ -1,4 +1,8 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * 確認タイプのテンプレートメッセージをトークに送信する
+ */
 const createDebug = require("debug");
 const request = require("request");
 const debug = createDebug('sskts-linebot:*');

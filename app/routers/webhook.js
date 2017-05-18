@@ -7,17 +7,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * ルーター
+ *
+ * @ignore
+ */
 const createDebug = require("debug");
 const express = require("express");
 const HTTPStatus = require("http-status");
 const webhookController = require("../conrtollers/webhook");
-const router = express.Router();
+const webhookRouter = express.Router();
 const debug = createDebug('sskts-linebot:*');
-router.all('/', (req, res) => __awaiter(this, void 0, void 0, function* () {
+// tslint:disable-next-line:max-func-body-length
+webhookRouter.all('/', (req, res) => __awaiter(this, void 0, void 0, function* () {
     debug('body:', JSON.stringify(req.body));
     try {
-        const event = (req.body.events) ? req.body.events[0] : undefined;
-        if (event) {
+        const event = (Array.isArray(req.body.events)) ? req.body.events[0] : undefined;
+        if (event !== undefined) {
             switch (event.type) {
                 case 'message':
                     yield webhookController.message(event);
@@ -50,5 +57,4 @@ router.all('/', (req, res) => __awaiter(this, void 0, void 0, function* () {
     }
     res.status(HTTPStatus.OK).send('ok');
 }));
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = router;
+exports.default = webhookRouter;

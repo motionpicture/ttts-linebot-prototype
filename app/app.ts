@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // 静的ファイル
-app.use(express.static(__dirname + '/../public'));
+app.use(express.static(`${__dirname}/../public`));
 
 // routers
 import linepayRouter from './routers/linepay';
@@ -41,7 +41,11 @@ app.use((req, res) => {
 // error handlers
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error(req.originalUrl, req.query, req.params, req.body, err);
-    if (res.headersSent) return next(err);
+    if (res.headersSent) {
+        next(err);
+
+        return;
+    }
 
     const STATUS_CODE_BAD_REQUET = 400;
     res.status(STATUS_CODE_BAD_REQUET);

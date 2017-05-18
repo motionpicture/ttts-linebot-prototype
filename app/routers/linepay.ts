@@ -7,10 +7,10 @@ import * as createDebug from 'debug';
 import * as express from 'express';
 import * as fs from 'fs-extra';
 import * as request from 'request-promise-native';
-const router = express.Router();
+const linepayRouter = express.Router();
 const debug = createDebug('sskts-linebot:*');
 
-router.all('/confirm', async (req, res) => {
+linepayRouter.all('/confirm', async (req, res) => {
     let reply = '';
     debug(req.query);
 
@@ -25,7 +25,7 @@ router.all('/confirm', async (req, res) => {
                 amount: req.query.amount,
                 currency: 'JPY'
             }
-        });
+        }).promise();
 
         if (confirmLinePayResponse.returnCode === '0000') {
             reply = '上映当日はこのQRコードをタップすると入場できるよ！';
@@ -69,7 +69,8 @@ router.all('/confirm', async (req, res) => {
                     }
                 ]
             }
-        });
+        }).promise();
+
         await request.post({
             simple: false,
             url: 'https://api.line.me/v2/bot/message/push',
@@ -89,14 +90,14 @@ router.all('/confirm', async (req, res) => {
                                 {
                                     type: 'uri',
                                     label: 'Webサイトに遷移',
-                                    uri: 'https://www.google.co.jp/?#q=' + encodeURIComponent('アメリカから来たモーリス')
+                                    uri: `https://www.google.co.jp/?#q=${encodeURIComponent('アメリカから来たモーリス')}`
                                 }
                             ]
                         }
                     }
                 ]
             }
-        });
+        }).promise();
     } catch (error) {
         console.error(error);
     }
@@ -105,12 +106,16 @@ router.all('/confirm', async (req, res) => {
 });
 
 // tslint:disable-next-line:variable-name
-router.get('/qrcode/:width', (_req, res, next) => {
-    fs.readFile(__dirname + '/../../public/images/qrcode.png', (err, data) => {
-        if (err) return next(err);
+linepayRouter.get('/qrcode/:width', (__, res, next) => {
+    fs.readFile(`${__dirname}/../../public/images/qrcode.png`, (err, data) => {
+        if (err) {
+            next(err);
+
+            return;
+        }
         res.contentType('image/png');
         res.send(data);
     });
 });
 
-export default router;
+export default linepayRouter;

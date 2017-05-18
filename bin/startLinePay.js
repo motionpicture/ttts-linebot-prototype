@@ -7,6 +7,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Line Payを開始する
+ * Line PayにはIP制限があるので注意
+ */
 const createDebug = require("debug");
 const request = require("request-promise-native");
 const debug = createDebug('sskts-linebot:*');
@@ -22,15 +27,17 @@ function main() {
                 productName: '商品名',
                 amount: 1,
                 currency: 'JPY',
+                // confirmUrl: `https://${req.headers["host"]}/linepay/confirm`,
+                // tslint:disable-next-line:no-http-string
                 confirmUrl: 'http://localhost:8080/linepay/confirm',
                 confirmUrlType: 'CLIENT',
                 cancelUrl: '',
                 orderId: 'LINEPayOrder_' + Date.now(),
                 payType: 'NORMAL',
                 langCd: 'ja',
-                capture: false
+                capture: false // 売上処理
             }
-        });
+        }).promise();
         if (response.returnCode !== '0000')
             throw new Error(response.returnMessage);
         debug(response.info.paymentUrl);

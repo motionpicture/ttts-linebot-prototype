@@ -7,13 +7,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * ルーター
+ *
+ * @ignore
+ */
 const createDebug = require("debug");
 const express = require("express");
 const fs = require("fs-extra");
 const request = require("request-promise-native");
-const router = express.Router();
+const linepayRouter = express.Router();
 const debug = createDebug('sskts-linebot:*');
-router.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, function* () {
+linepayRouter.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, function* () {
     let reply = '';
     debug(req.query);
     try {
@@ -27,7 +33,7 @@ router.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, function* (
                 amount: req.query.amount,
                 currency: 'JPY'
             }
-        });
+        }).promise();
         if (confirmLinePayResponse.returnCode === '0000') {
             reply = '上映当日はこのQRコードをタップすると入場できるよ！';
         }
@@ -35,6 +41,7 @@ router.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, function* (
             reply = '決済を完了できませんでした' + confirmLinePayResponse.returnMessage;
         }
         reply += '\n\n日時：2017/3/4(土)\n枚数：2枚\n作品：アメリカから来たモーリス';
+        // push message
         yield request.post({
             simple: false,
             url: 'https://api.line.me/v2/bot/message/push',
@@ -70,7 +77,7 @@ router.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, function* (
                     }
                 ]
             }
-        });
+        }).promise();
         yield request.post({
             simple: false,
             url: 'https://api.line.me/v2/bot/message/push',
@@ -90,27 +97,29 @@ router.all('/confirm', (req, res) => __awaiter(this, void 0, void 0, function* (
                                 {
                                     type: 'uri',
                                     label: 'Webサイトに遷移',
-                                    uri: 'https://www.google.co.jp/?#q=' + encodeURIComponent('アメリカから来たモーリス')
+                                    uri: `https://www.google.co.jp/?#q=${encodeURIComponent('アメリカから来たモーリス')}`
                                 }
                             ]
                         }
                     }
                 ]
             }
-        });
+        }).promise();
     }
     catch (error) {
         console.error(error);
     }
     res.send(reply);
 }));
-router.get('/qrcode/:width', (_req, res, next) => {
-    fs.readFile(__dirname + '/../../public/images/qrcode.png', (err, data) => {
-        if (err)
-            return next(err);
+// tslint:disable-next-line:variable-name
+linepayRouter.get('/qrcode/:width', (__, res, next) => {
+    fs.readFile(`${__dirname}/../../public/images/qrcode.png`, (err, data) => {
+        if (err) {
+            next(err);
+            return;
+        }
         res.contentType('image/png');
         res.send(data);
     });
 });
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = router;
+exports.default = linepayRouter;

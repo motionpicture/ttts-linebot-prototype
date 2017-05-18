@@ -28,7 +28,7 @@ async function main() {
             langCd: 'ja', // 決済待ち画面(paymentUrl)言語コード。6 種の言語に対応。
             capture: false // 売上処理
         }
-    });
+    }).promise();
 
     if (response.returnCode !== '0000') throw new Error(response.returnMessage);
     debug(response.info.paymentUrl);

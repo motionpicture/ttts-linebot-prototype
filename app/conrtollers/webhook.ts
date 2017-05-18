@@ -97,7 +97,7 @@ export async function message(event: any) {
             // QnA Maker API Call
             const qnaResult = await getQnAText(translatorTextResult);
             let qnAReturn = JSON.parse(qnaResult).answer;
-            debug('answer：' + qnAReturn);
+            debug('answer：', qnAReturn);
             if (qnAReturn === 'No good match found in the KB') {
                 qnAReturn = 'ちょっと分からない内容だなぁ。。ホームページ見てみて！https://www.tokyotower.co.jp/index.html';
             }
@@ -133,6 +133,7 @@ export async function postback(event: any) {
  */
 export async function follow(event: any) {
     debug('event is', event);
+
     return;
 }
 
@@ -141,6 +142,7 @@ export async function follow(event: any) {
  */
 export async function unfollow(event: any) {
     debug('event is', event);
+
     return;
 }
 
@@ -149,6 +151,7 @@ export async function unfollow(event: any) {
  */
 export async function join(event: any) {
     debug('event is', event);
+
     return;
 }
 
@@ -157,6 +160,7 @@ export async function join(event: any) {
  */
 export async function leave(event: any) {
     debug('event is', event);
+
     return;
 }
 
@@ -165,6 +169,7 @@ export async function leave(event: any) {
  */
 export async function beacon(event: any) {
     debug('event is', event);
+
     return;
 }
 
@@ -190,7 +195,7 @@ async function pushMessage(MID: string, text: string) {
                 }
             ]
         }
-    });
+    }).promise();
 }
 
 /**
@@ -207,17 +212,17 @@ async function getTranslatorText(text: string) {
             'Content-Type': 'application/json'
         },
         json: true
-    }
-    );
+    }).promise();
 
     // Azure Translator Executing Transfer
-    debug('getTranslatorText text：' + text);
+    debug('getTranslatorText text：', text);
     const getTranslatorResult = await request.get({
         simple: false,
         url: 'https://api.microsofttranslator.com/v2/http.svc/Translate?appid=Bearer ' +
         transelatorTokenResult + '&text=' + encodeURIComponent(text) + '&from=ja&to=en'
-    });
-    debug('getTranslatorText getTranslatorResult：' + getTranslatorResult.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, ''));
+    }).promise();
+    debug('getTranslatorText getTranslatorResult：', getTranslatorResult.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, ''));
+
     return getTranslatorResult.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g, '');
 }
 
@@ -238,9 +243,9 @@ async function getQnAText(text: string) {
         body: {
             question: text
         }
-    }
-    );
+    }).promise();
     debug('getQnATextResult：' + JSON.stringify(getQnATextResult));
+
     return JSON.stringify(getQnATextResult);
 }
 
@@ -282,7 +287,7 @@ async function pushFirstChoice(MID: string) {
                 }
             ]
         }
-    });
+    }).promise();
 }
 
 /**
@@ -328,7 +333,7 @@ async function pushDate(MID: string) {
                 }
             ]
         }
-    });
+    }).promise();
 }
 
 /**
@@ -379,7 +384,7 @@ async function pushNumber(MID: string) {
                 }
             ]
         }
-    });
+    }).promise();
 }
 
 /**
@@ -415,7 +420,7 @@ async function pushCoupon(MID: string) {
                 }
             ]
         }
-    });
+    }).promise();
 }
 
 /**
@@ -427,19 +432,21 @@ async function pushCoupon(MID: string) {
 async function pushPerformances(MID: string, day: string) {
     // パフォーマンス検索
     const searchPerformancesResponse = await request.get({
-        url: process.env.MP_API_ENDPOINT + '/ja/performance/search',
+        url: `${process.env.MP_API_ENDPOINT}/ja/performance/search`,
         json: true,
         qs: {
             day: day
         }
-    });
+    }).promise();
+    debug('searchPerformancesResponse:', searchPerformancesResponse);
 
     const MAX_COLUMNS = 3;
     const performances: any[] =
-        searchPerformancesResponse.results.slice(0, Math.min(MAX_COLUMNS, searchPerformancesResponse.results.length));
+        searchPerformancesResponse.data.slice(0, Math.min(MAX_COLUMNS, searchPerformancesResponse.data.length));
 
     if (performances.length === 0) {
         await pushMessage(MID, 'その日はチケット売ってないな～。他の日を入力してみて！！');
+
         return;
     }
 
@@ -455,27 +462,32 @@ async function pushPerformances(MID: string, day: string) {
                 'X-LINE-ChannelSecret': process.env.LINE_PAY_CHANNEL_SECRET
             },
             json: {
-                productName: performance.film_name,
-                productImageUrl: performance.film_image,
+                productName: performance.attributes.film_name,
+                productImageUrl: performance.attributes.film_image,
                 amount: amount,
                 currency: 'JPY',
                 // mid: MID, // 含めるとpaymentUrl先でエラーになるかも？
-                confirmUrl: process.env.LINE_PAY_WEBHOOK_ENDPOINT + '/linepay/confirm?mid=' + MID + '&amount=' + amount,
+                confirmUrl: `${process.env.LINE_PAY_WEBHOOK_ENDPOINT}/linepay/confirm?mid=${MID}&amount=${amount}`,
                 // confirmUrlType: 'CLIENT',
                 confirmUrlType: 'SERVER',
                 cancelUrl: '',
-                orderId: 'LINEPayOrder_' + Date.now(),
+                orderId: 'LINEPayOrder_' + Date.now().toString(),
                 payType: 'NORMAL', // 一般決済
                 langCd: 'ja', // 決済待ち画面(paymentUrl)言語コード。6 種の言語に対応。
                 capture: false // 売上処理
             }
-        });
+        }).promise();
+        debug('startLinePayResponse:', startLinePayResponse);
 
-        if (startLinePayResponse.returnCode !== '0000') return;
+        if (startLinePayResponse.returnCode !== '0000') {
+
+            return;
+        }
+
         columns.push({
-            thumbnailImageUrl: performance.film_image,
-            title: performance.film_name.substr(0, MAX_TITLE_LENGTH),
-            text: performance.theater_name,
+            thumbnailImageUrl: performance.attributes.film_image,
+            title: performance.attributes.film_name.substr(0, MAX_TITLE_LENGTH),
+            text: performance.attributes.theater_name,
             actions: [
                 {
                     type: 'uri',
@@ -485,7 +497,7 @@ async function pushPerformances(MID: string, day: string) {
                 {
                     type: 'uri',
                     label: '作品詳細',
-                    uri: 'https://www.google.co.jp/?#q=' + encodeURIComponent(performance.film_name)
+                    uri: 'https://www.google.co.jp/?#q=' + encodeURIComponent(performance.attributes.film_name)
                 }
             ]
         });
@@ -512,5 +524,5 @@ async function pushPerformances(MID: string, day: string) {
                 }
             ]
         }
-    });
+    }).promise();
 }

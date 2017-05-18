@@ -14,7 +14,7 @@ const debug = createDebug('app:server');
  * Get port from environment and store in Express.
  */
 
-const port = normalizePort(process.env.PORT || process.env.npm_config_port);
+const port = normalizePort((process.env.PORT === undefined) ? '8080' : process.env.PORT);
 // tslint:disable-next-line:no-backbone-get-set-outside-model
 app.set('port', port);
 
@@ -63,17 +63,17 @@ function onError(error: any) {
     }
 
     const bind = typeof port === 'string'
-        ? 'Pipe ' + port
-        : 'Port ' + port;
+        ? `Pipe ${port}`
+        : `Port ${(<number>port).toString()}`;
 
     // handle specific listen errors with friendly messages
     switch (error.code) {
         case 'EACCES':
-            console.error(bind + ' requires elevated privileges');
+            console.error(`${bind} requires elevated privileges`);
             process.exit(1);
             break;
         case 'EADDRINUSE':
-            console.error(bind + ' is already in use');
+            console.error(`${bind} is already in use`);
             process.exit(1);
             break;
         default:
@@ -88,9 +88,9 @@ function onError(error: any) {
 function onListening() {
     const addr = server.address();
     const bind = typeof addr === 'string'
-        ? 'pipe ' + addr
-        : 'port ' + addr.port;
-    debug('Listening on ' + bind);
+        ? `pipe ${<string>addr}`
+        : `port ${addr.port.toString()}`;
+    debug(`Listening on ${bind}`);
 
     const diff = process.hrtime(startTime);
     debug(`api server listening took ${diff[0]} seconds and ${diff[1]} nanoseconds.`);
